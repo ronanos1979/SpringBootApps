@@ -27,8 +27,8 @@
 					<td>${dictionaryEntry.username}</td>					
 					<td>${dictionaryEntry.dateAdded}</td>
 					<td>${dictionaryEntry.externalLookupCompleted}</td>									
-					<td><a href="update-word?id=${dictionaryEntry.id}" class="btn btn-primary">Update</a></td>
-					<td><a href="delete-word?id=${dictionaryEntry.id}" class="btn btn-warning">Delete</a></td>
+					<td><a href="update-dictionary-entry?id=${dictionaryEntry.id}" class="btn btn-primary">Update</a></td>
+					<td><a href="delete-dictionary-entry?id=${dictionaryEntry.id}" class="btn btn-warning">Delete</a></td>
 					
 				</tr>		
 			</c:forEach>

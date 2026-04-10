@@ -25,7 +25,7 @@ public class DictionaryEntryControllerJPA {
 //    private final DictionaryService dictionaryService;
 	private DictionaryEntryRepository dictEntryRepository;
     
-	//public LookupWordControllerJpa(LookupWordRepository wordRepository, DictionaryService dictionaryService) {
+	//public DictionaryEntryControllerJPA(DictionaryEntryRepository dictEntryRepository, DictionaryService dictionaryService) {
     public DictionaryEntryControllerJPA(DictionaryEntryRepository dictEntryRepository) {
 		super();		
 		this.dictEntryRepository = dictEntryRepository;
@@ -56,44 +56,43 @@ public class DictionaryEntryControllerJPA {
 	}
 
 	@RequestMapping(value="add-dictionary-entry", method=RequestMethod.GET)
-	public String showNewWordPage(ModelMap model) {
+	public String showNewDictionaryEntryPage(ModelMap model) {
 		DictionaryEntry entry = new DictionaryEntry(0, "", "", LocalDate.now(), "", false);
 		model.put("dictionaryEntry", entry);
 		return "addDictionaryEntry";
 	}
 
 	@RequestMapping(value="add-dictionary-entry", method=RequestMethod.POST)	
-	public String addNewWord(ModelMap model, @Valid DictionaryEntry word, BindingResult result) {
-		System.out.println("Incoming word: " + word);
+	public String addNewDictionaryEntry(ModelMap model, @Valid DictionaryEntry dictionaryEntry, BindingResult result) {
+		System.out.println("Incoming Dictionary Entry: " + dictionaryEntry);
 		if (result.hasErrors()) {
 			return "addDictionaryEntry";
 		}			
 		String username = getLoggedInUsername(model);
-		word.setUsername(username);
-		word.setDateAdded(LocalDate.now());
-		dictEntryRepository.save(word);
+		dictionaryEntry.setUsername(username);
+		dictionaryEntry.setDateAdded(LocalDate.now());
+		dictEntryRepository.save(dictionaryEntry);
 		return "redirect:list-dictionary-entries";
 	}
 
 	@RequestMapping(value="update-dictionary-entry", method=RequestMethod.GET)
-	public String showUpdateWordPage(@RequestParam int id, ModelMap model) {
-		DictionaryEntry word = dictEntryRepository.findById(id).get();
-		model.addAttribute("word", word);
-		return "word";
+	public String showUpdateDictionaryEntryPage(@RequestParam int id, ModelMap model) {
+		DictionaryEntry entry = dictEntryRepository.findById(id).get();
+		model.addAttribute("dictionaryEntry", entry);
+		return "addDictionaryEntry";
 	}
 	
 	@RequestMapping(value="update-dictionary-entry", method=RequestMethod.POST)
 	// Before Command Bean / Form Backing Object
 	// public String addNewword(@RequestParam String description, ModelMap model) {
-	public String updateword(ModelMap model, @Valid DictionaryEntry word, BindingResult result) {
+	public String updateDictionaryEntry(ModelMap model, @Valid DictionaryEntry entry, BindingResult result) {
 		if (result.hasErrors()) {
-			return "word";
+			return "addDictionaryEntry";
 		}			
 		
 		String username = getLoggedInUsername(model);
-//		word.setUsername(username);
-		//wordService.updateword(word);
-		dictEntryRepository.save(word);
+		entry.setUsername(username);		
+		dictEntryRepository.save(entry);
 		return "redirect:list-dictionary-entries";
 	}
 
