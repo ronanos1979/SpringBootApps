@@ -1,4 +1,4 @@
-package com.ronanos.goodwords.dictionary;
+package com.ronanos.lexiconlair.dictionary;
 
 
 import java.util.List;

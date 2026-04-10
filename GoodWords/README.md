@@ -1,5 +1,56 @@
-# myfirstwebapp
-## Notes from UDemy Course
+# LexiconLair
+This is a simple spring boot application I wrote just for getting familiar with Spring Boot. The intention is to enter words I do not know when I am reading regular books and get the dictionary entry added. 
+
+
+## Database Setup
+The database will be setup with the following queries
+
+### MySQL
+The queries are:
+
+```
+create database lexiconlair;
+
+CREATE USER 'lexiconlair-user'@'localhost';
+
+GRANT ALL PRIVILEGES ON lexiconlair.* To 'lexiconlair-user'@'localhost' ;
+
+alter user 'lexiconlair-user'@'localhost' IDENTIFIED BY 'lexiconlairpass';
+```
+
+### PostGres
+
+
+### PostGres Config
+Can be done in the UI of pgAdmin 
+or
+
+Add the following folder to the Path env variable
+```
+C:\Program Files\PostgreSQL\18\bin
+```
+
+Then run 
+
+```
+psql -U postgres -h localhost
+```
+
+Then use this
+
+```
+CREATE DATABASE lexiconlair;
+CREATE USER "lexiconlair-user" WITH PASSWORD 'dummylexiconlair';
+GRANT ALL PRIVILEGES ON DATABASE lexiconlair TO "lexiconlair-user";
+\c lexiconlair
+-- allow the user to use the schema
+GRANT USAGE ON SCHEMA public TO "lexiconlair-user";
+-- allow the user to create tables in the schema
+GRANT CREATE ON SCHEMA public TO "lexiconlair-user";
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "lexiconlair-user";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO "lexiconlair-user";
+```
+
 
 ## GitHub Links
 https://github.com/in28minutes/spring-boot-master-class/blob/master/02.Spring-Boot-Web-Application-V2/99-step-by-step-changes.md#step01

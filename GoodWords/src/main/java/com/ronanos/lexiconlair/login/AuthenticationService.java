@@ -1,4 +1,4 @@
-package com.ronanos.goodwords.login;
+package com.ronanos.lexiconlair.login;
 
 import org.springframework.stereotype.Component;
 

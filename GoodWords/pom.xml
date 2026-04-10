@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ronanos.com</groupId>
-	<artifactId>GoodWords</artifactId>
+	<artifactId>LexiconLair</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>GoodWords</name>
-	<description>Good Words Application for Keeping track of new words from books</description>
+	<name>LexiconLair</name>
+	<description>Lexicon Lair Application for Keeping track of new words from books</description>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
@@ -108,7 +108,14 @@
 		    <groupId>org.webjars</groupId>
 		    <artifactId>jquery</artifactId>
 		    <version>3.7.1</version>		    
-		</dependency>			
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+<!--			<version>42.7.10</version> -->
+<!-- Replace with latest version -->
+			<scope>runtime</scope>
+		</dependency>					
 	</dependencies>
 
 	<build>

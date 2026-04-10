@@ -1,4 +1,4 @@
-package com.ronanos.goodwords.security;
+package com.ronanos.lexiconlair.security;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -17,7 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SpringSecurityConfiguration {
 
-
 // Commented out for more secure password encoding below
 //	@Bean
 //	public InMemoryUserDetailsManager createUserDetailsManager() {
@@ -28,7 +27,7 @@ public class SpringSecurityConfiguration {
 //			.build();
 //		return new InMemoryUserDetailsManager(userDetails);
 //	}
-	
+
 	@Bean
 	public InMemoryUserDetailsManager createUserDetailsManager() {
 		UserDetails userDetails1 = createNewUser("ronan", "password");
@@ -36,19 +35,14 @@ public class SpringSecurityConfiguration {
 		return new InMemoryUserDetailsManager(userDetails1, userDetails2);
 	}
 
-private UserDetails createNewUser(String username, String password) {
-	Function<String, String> encoder = 
-			input -> passwordEncoder().encode(input);
-			
-	UserDetails userDetails = User.builder()
-		.passwordEncoder(encoder)
-		.username(username)
-		.password(password)
-		.roles("USER","ADMIN")
-		.build();
-	return userDetails;
-}
-	
+	private UserDetails createNewUser(String username, String password) {
+		Function<String, String> encoder = input -> passwordEncoder().encode(input);
+
+		UserDetails userDetails = User.builder().passwordEncoder(encoder).username(username).password(password)
+				.roles("USER", "ADMIN").build();
+		return userDetails;
+	}
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -57,19 +51,17 @@ private UserDetails createNewUser(String username, String password) {
 	// All URLs are oritected
 	// A login form is shown for unauthorized requests
 	// CSRF disable
-	// Frames 
-	
+	// Frames
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.authorizeHttpRequests(
-				auth -> auth.anyRequest().authenticated());
+		http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
 		http.formLogin(withDefaults());
-		
+
 		http.csrf().disable();
 		http.headers().frameOptions().disable();
-		
+
 		return http.build();
 	}
-
 
 }

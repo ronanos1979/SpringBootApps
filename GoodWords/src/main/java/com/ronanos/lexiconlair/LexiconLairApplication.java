@@ -1,4 +1,4 @@
-package com.ronanos.goodwords;
+package com.ronanos.lexiconlair;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,10 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-public class GoodWordsApplication {
+public class LexiconLairApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GoodWordsApplication.class, args);
+		SpringApplication.run(LexiconLairApplication.class, args);
 	}
 }
 

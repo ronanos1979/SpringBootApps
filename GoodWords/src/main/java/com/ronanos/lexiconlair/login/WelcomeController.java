@@ -1,4 +1,4 @@
-package com.ronanos.goodwords.login;
+package com.ronanos.lexiconlair.login;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

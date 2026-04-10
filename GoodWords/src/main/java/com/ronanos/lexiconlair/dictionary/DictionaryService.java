@@ -1,9 +1,11 @@
-package com.ronanos.goodwords.dictionary;
+package com.ronanos.lexiconlair.dictionary;
 
-import com.ronanos.goodwords.dictionary.DictionaryWordDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.ronanos.lexiconlair.dictionary.DictionaryWordDTO;
+
 import org.springframework.http.ResponseEntity;
 
 @Service
