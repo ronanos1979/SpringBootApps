@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link href="webjars/bootstrap/5.3.3/css/bootstrap.css" rel="stylesheet">
+<link href="webjars/bootstrap/5.3.8/css/bootstrap.css" rel="stylesheet">
 <title>Welcome to the Login Page</title>
 </head>
 <body>Welcome to the Login Page!
@@ -15,8 +15,8 @@
 	<input type="submit"/>
 	
 	</form>
-	<script src="webjars/bootstrap/5.3.3/js/bootstrap.js"></script>
-	<script src="webjars/jquery/3.7.1/jquery.js"></script>
+	<script src="webjars/bootstrap/5.3.8/js/bootstrap.js"></script>
+	<script src="webjars/jquery/4.0.0/jquery.js"></script>
 </div>
 </body>
 </html>

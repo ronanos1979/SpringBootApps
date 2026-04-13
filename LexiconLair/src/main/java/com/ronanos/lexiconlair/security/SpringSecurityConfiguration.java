@@ -7,6 +7,9 @@ import java.util.function.Function;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,18 +18,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SpringSecurityConfiguration {
-
-// Commented out for more secure password encoding below
-//	@Bean
-//	public InMemoryUserDetailsManager createUserDetailsManager() {
-//		UserDetails userDetails = User.withDefaultPasswordEncoder()
-//			.username("ronan")
-//			.password("password")
-//			.roles("USER","ADMIN")
-//			.build();
-//		return new InMemoryUserDetailsManager(userDetails);
-//	}
 
 	@Bean
 	public InMemoryUserDetailsManager createUserDetailsManager() {
@@ -37,10 +30,12 @@ public class SpringSecurityConfiguration {
 
 	private UserDetails createNewUser(String username, String password) {
 		Function<String, String> encoder = input -> passwordEncoder().encode(input);
-
-		UserDetails userDetails = User.builder().passwordEncoder(encoder).username(username).password(password)
-				.roles("USER", "ADMIN").build();
-		return userDetails;
+		return User.builder()
+				.passwordEncoder(encoder)
+				.username(username)
+				.password(password)
+				.roles("USER", "ADMIN")
+				.build();
 	}
 
 	@Bean
@@ -48,20 +43,13 @@ public class SpringSecurityConfiguration {
 		return new BCryptPasswordEncoder();
 	}
 
-	// All URLs are oritected
-	// A login form is shown for unauthorized requests
-	// CSRF disable
-	// Frames
-
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
-		http.formLogin(withDefaults());
-
-		http.csrf().disable();
-		http.headers().frameOptions().disable();
-
-		return http.build();
+		return http
+				.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+				.formLogin(withDefaults())
+				.csrf(AbstractHttpConfigurer::disable)
+				.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+				.build();
 	}
-
 }
