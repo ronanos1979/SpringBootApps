@@ -1,6 +1,4 @@
-package com.ronanos.lexiconlair.word;
-
-import java.util.List;
+package com.ronanos.lexiconlair.dictionaryentry;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
