@@ -12,111 +12,107 @@ erDiagram
         int id PK
         string username
         string password
+        string first_name
+        string last_name
         string email
+        date created_at
+    }
+
+    WORD {
+        int id PK
+        string text
+        string language
+    }
+
+    USERWORD {
+        int id PK
+        int user_id FK
+        int word_id FK
+        int book_id FK
+        Date saved_at
+        String notes
+    }
+    
+    DEFINITION {
+        int id PK
+        int word_id FK
+        String definition_text
+        String part_of_speech
+        String example
+        int source_api
+        Date cached_at
     }
 
     BOOK {
         int id PK
         string title
-        string isbn
-        date publishedDate
-        int addedByUserId FK
+        int author_id FK
     }
 
     AUTHOR {
         int id PK
         string firstName
         string lastName
-        int addedByUserId FK
     }
 
-    BOOK_AUTHOR {
-        int bookId FK
-        int authorId FK
-    }
-
-    DICTIONARY_ENTRY {
+    REVIEW {
         int id PK
-        string entryWord
-        string definition
-        date dateAdded
-        int userId FK
-        int bookId FK
+        int user_id FK
+        int book_id FK
+        int rating
+        String comment
+        Date created_at
     }
 
-    USER ||--o{ BOOK : "adds"
-    USER ||--o{ AUTHOR : "adds"
-    USER ||--o{ DICTIONARY_ENTRY : "creates"
-    BOOK ||--o{ BOOK_AUTHOR : "has"
-    AUTHOR ||--o{ BOOK_AUTHOR : "writes"
-    BOOK ||--o{ DICTIONARY_ENTRY : "source of"
+
+
+    USER ||--o{ USERWORD : "saves"
+    WORD ||--o{ USERWORD : "referenced_in"
+    WORD ||--o{ DEFINITION : "has"
+    AUTHOR ||--o{ BOOK : "writes"
+    USER ||--o{ REVIEW : "writes"
+    BOOK ||--o{ REVIEW : "receives"
 ```
 
 ---
 
 ## MVC Breakdown
 
-| MVC Tier | Classes |
-|---|---|
-| **Model** | `User`, `UserRepository`, `UserService` · `Book`, `BookRepository`, `BookService` · `Author`, `AuthorRepository`, `AuthorService` · `DictionaryEntry`, `DictionaryEntryRepository`, `DictionaryService` |
-| **View** | `welcome.jsp` · `listBooks.jsp`, `addBook.jsp` · `listAuthors.jsp`, `addAuthor.jsp` · `listUsers.jsp`, `addUser.jsp` · `listDictionaryEntries.jsp`, `addDictionaryEntry.jsp` |
-| **Controller** | `WelcomeController`, `BookControllerJPA`, `AuthorControllerJPA`, `UserControllerJPA`, `DictionaryEntryControllerJPA` |
+| MVC Tier         | Classes                                                                                                                                    |
+|------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| **Model**        | `User`, `Word`, `Definition`, `Book`, `Author`, `Review`, `UserWord`                                                                       |
+| **Services**     | `UserService`, `WordService`, `BookService`, `AuthorService`, `ReviewService`, `DictionaryService`                                         |
+| **Repositories** | `UserRepository`, `WordRepository`, `DefinitionRepository`, `BookRepository`, `AuthorRepository`, `ReviewRepository`, `UserWordRepository` |
+| **View**         | JSP pages `listWords.jsp` · `addWord.jsp`, etc.                                                                                            |
+| **Controller**   | `WordController`, `BookController`, `AuthorController`, `UserController`, `ReviewController`                                               |
 
 > **Note:** Controllers should call a Service, which calls the Repository — not the Repository directly. This keeps business logic out of the Controller and makes each layer independently testable.
 
 ```mermaid
-flowchart LR
+flowchart TD
 
-    A[Web Browser] -->|HTTP| C
+    A[Browser] --> B[WordController]
 
-    subgraph C["Controller"]
-        C1[WelcomeController]
-        C2[DictionaryEntryControllerJPA]
-        C3[BookControllerJPA]
-        C4[AuthorControllerJPA]
-        C5[UserControllerJPA]
-    end
+    B --> C[WordService]
 
-    subgraph M["Model"]
-        direction TB
-        subgraph Entities["Entities"]
-            M1[DictionaryEntry]
-            M4[Book]
-            M7[Author]
-            M10[User]
-        end
-        subgraph Services["Services"]
-            M3[DictionaryService]
-            M6[BookService]
-            M9[AuthorService]
-            M12[UserService]
-        end
-        subgraph Repositories["Repositories"]
-            M2[DictionaryEntryRepository]
-            M5[BookRepository]
-            M8[AuthorRepository]
-            M11[UserRepository]
-        end
-    end
+    C --> D[Definition Cache]
 
-    subgraph V["View"]
-        V1[welcome.jsp]
-        V2[listDictionaryEntries.jsp]
-        V3[addDictionaryEntry.jsp]
-        V4[listBooks.jsp]
-        V5[addBook.jsp]
-        V6[listAuthors.jsp]
-        V7[addAuthor.jsp]
-        V8[listUsers.jsp]
-        V9[addUser.jsp]
-    end
+    D -->|Cache Hit| C
 
-    C --> Services
-    Services --> Repositories
-    Repositories -->|ORM| Entities
-    Entities --> DB[(Database)]
-    C --> V
-    M3 -->|REST| EXT[dictionaryapi.dev]
+    D -->|Cache Miss| E[DictionaryService]
+
+    E --> F[External Dictionary API]
+
+    E --> G[DefinitionRepository]
+
+    C --> H[UserWordRepository]
+
+    G --> I[(LexiconLair DB)]
+    H --> I
+
+    C --> B
+    B --> J[JSP View]
+    J --> A
 ```
 
 ---
@@ -129,125 +125,163 @@ This is mermaid syntax
 flowchart TD
 
 %% ===== CLIENT =====
-subgraph CLIENT["Client Layer"]
-    A[Web Browser]
-end
+    subgraph CLIENT["Client Layer"]
+        A[Web Browser]
+    end
 
 %% ===== SPRING BOOT APP =====
 subgraph APP["Spring Boot MVC Application (port 8080)"]
 
-    %% SECURITY
-    subgraph SECURITY["Security Layer"]
-        SEC["SpringSecurityConfiguration
+%% SECURITY
+subgraph SECURITY["Security Layer"]
+SEC["SpringSecurityConfiguration
         InMemoryUserDetailsManager
-        Users: ronan, ronan2 (BCrypt)"]
-    end
+Users: ronan, ronan2 (BCrypt)"]
+end
 
-    %% CONTROLLERS
-    subgraph CONTROLLER["Controller Layer"]
-        C1["WelcomeController
-        GET /"]
-        C2["DictionaryEntryControllerJPA
-        GET  /list-dictionary-entries
-        GET  /add-dictionary-entry
-        POST /add-dictionary-entry
-        GET  /update-dictionary-entry?id
-        POST /update-dictionary-entry
-        GET  /delete-dictionary-entry?id"]
-        C3["BookControllerJPA
-        GET  /list-books
-        GET  /add-book
-        POST /add-book
-        GET  /update-book?id
-        POST /update-book
-        GET  /delete-book?id"]
-        C4["AuthorControllerJPA
-        GET  /list-authors
-        GET  /add-author
-        POST /add-author
-        GET  /update-author?id
-        POST /update-author
-        GET  /delete-author?id"]
-        C5["UserControllerJPA
-        GET  /list-users
-        GET  /add-user
-        POST /add-user
-        GET  /update-user?id
-        POST /update-user
-        GET  /delete-user?id"]
-    end
+%% CONTROLLERS
+subgraph CONTROLLER["Controller Layer"]
+C1["WelcomeController
+GET /"]
+C2["WordController
+GET  /words
+GET  /words/add
+POST /words
+GET  /words/{id}
+GET  /words/{id}/edit
+POST /words/{id}/update
+GET  /words/{id}/delete"]
+C3["BookController
+GET  /books
+GET  /books/add
+POST /books
+GET  /books/{id}
+GET  /books/{id}/edit
+POST /books/{id}/update
+GET  /books/{id}/delete"]
+C4["AuthorController
+GET  /authors
+GET  /authors/add
+POST /authors
+GET  /authors/{id}
+GET  /authors/{id}/edit
+POST /authors/{id}/update
+GET  /authors/{id}/delete"]
+C5["UserController
+GET  /users
+GET  /users/add
+POST /users
+GET  /users/{id}
+GET  /users/{id}/edit
+POST /users/{id}/update
+GET  /users/{id}/delete"]
+C6["ReviewController
+GET  /reviews
+GET  /reviews/add
+POST /reviews
+GET  /reviews/{id}/edit
+POST /reviews/{id}/update
+GET  /reviews/{id}/delete"]
+end
 
-    %% SERVICES
-    subgraph SERVICE["Service Layer"]
-        S1["DictionaryService
-        getMeaning(word)
-        → dictionaryapi.dev"]
-        S2["BookService"]
-        S3["AuthorService"]
-        S4["UserService"]
-    end
+%% SERVICES
+subgraph SERVICE["Service Layer"]
+S1["WordService
+saveWordForUser()
+getWordDetails()
+listWords()"]
+S2["BookService"]
+S3["AuthorService"]
+S4["UserService"]
+S5["ReviewService"]
+S6["DictionaryService
+fetchDefinition(word)
+→ dictionaryapi.dev"]
+end
 
-    %% REPOSITORIES
-    subgraph REPO["Repository Layer"]
-        R1["DictionaryEntryRepository
-        JpaRepository&lt;DictionaryEntry, Integer&gt;"]
-        R2["BookRepository
-        JpaRepository&lt;Book, Integer&gt;"]
-        R3["AuthorRepository
-        JpaRepository&lt;Author, Integer&gt;"]
-        R4["UserRepository
-        JpaRepository&lt;User, Integer&gt;"]
-    end
+%% REPOSITORIES
+subgraph REPO["Repository Layer"]
+R1["WordRepository
+JpaRepository&lt;Word, Integer&gt;"]
+R2["DefinitionRepository
+JpaRepository&lt;Definition, Integer&gt;"]
+R3["UserWordRepository
+JpaRepository&lt;UserWord, Integer&gt;"]
+R4["BookRepository
+JpaRepository&lt;Book, Integer&gt;"]
+R5["AuthorRepository
+JpaRepository&lt;Author, Integer&gt;"]
+R6["UserRepository
+JpaRepository&lt;User, Integer&gt;"]
+R7["ReviewRepository
+JpaRepository&lt;Review, Integer&gt;"]
+end
 
-    %% ENTITIES
-    subgraph ENTITY["Domain Entities"]
-        E1["DictionaryEntry
-        id, entryWord, definition
-        dateAdded, userId, bookId"]
-        E2["Book
-        id, title, isbn
-        publishedDate, addedByUserId"]
-        E3["Author
-        id, firstName, lastName
-        addedByUserId"]
-        E4["User
-        id, username, password, email"]
-        E5["BookAuthor (join)
-        bookId, authorId"]
-    end
+%% ENTITIES
+subgraph ENTITY["Domain Entities"]
+E1["Word
+id, text, language"]
+E2["Definition
+id, word_id, definition_text
+part_of_speech, example
+source_api, cached_at"]
+E3["UserWord
+id, user_id, word_id
+book_id, saved_at, notes"]
+E4["Book
+id, title, author_id"]
+E5["Author
+id, first_name, last_name"]
+E6["User
+id, username, password
+first_name, last_name
+email, created_at"]
+E7["Review
+id, user_id, book_id
+rating, comment, created_at"]
+end
 
-    %% VIEWS
-    subgraph VIEWS["JSP Views (WEB-INF/jsp)"]
-        V1[welcome.jsp]
-        V2[listDictionaryEntries.jsp]
-        V3[addDictionaryEntry.jsp]
-        V4[listBooks.jsp]
-        V5[addBook.jsp]
-        V6[listAuthors.jsp]
-        V7[addAuthor.jsp]
-        V8[listUsers.jsp]
-        V9[addUser.jsp]
-    end
+%% CACHE
+subgraph CACHE["Cache Layer"]
+CA["Definition Cache
+Redis / in-memory cache"]
+end
 
-    %% CONFIG
-    subgraph CONFIG["Configuration"]
-        CFG["AppConfig
-        @Bean RestTemplate"]
-    end
+%% VIEWS
+subgraph VIEWS["JSP Views (WEB-INF/jsp)"]
+V1[welcome.jsp]
+V2[listWords.jsp]
+V3[addWord.jsp]
+V4[wordDetails.jsp]
+V5[listBooks.jsp]
+V6[addBook.jsp]
+V7[bookDetails.jsp]
+V8[listAuthors.jsp]
+V9[addAuthor.jsp]
+V10[listUsers.jsp]
+V11[addUser.jsp]
+V12[listReviews.jsp]
+V13[addReview.jsp]
+end
+
+%% CONFIG
+subgraph CONFIG["Configuration"]
+CFG["AppConfig
+@Bean RestTemplate"]
+end
 end
 
 %% ===== DATABASE =====
-subgraph DATA["Database (active profile: postgresql)"]
-    DB[("PostgreSQL : 5432
-    — or —
-    MySQL : 3306
-    lexiconlair DB")]
+subgraph DATA["Database (single relational DB)"]
+DB[("LexiconLair DB
+PostgreSQL : 5432
+or MySQL : 3306")]
 end
 
 %% ===== EXTERNAL =====
 subgraph EXT["External Systems"]
-    EXT1["dictionaryapi.dev
-    /api/v2/entries/en/{word}"]
+EXT1["dictionaryapi.dev
+/api/v2/entries/en/{word}"]
 end
 
 %% ===== FLOW =====
@@ -257,41 +291,63 @@ SEC -->|"Form login / session"| C2
 SEC -->|"Form login / session"| C3
 SEC -->|"Form login / session"| C4
 SEC -->|"Form login / session"| C5
+SEC -->|"Form login / session"| C6
 
 C1 --> V1
+
 C2 --> V2
 C2 --> V3
-C3 --> V4
+C2 --> V4
+
 C3 --> V5
-C4 --> V6
-C4 --> V7
-C5 --> V8
-C5 --> V9
+C3 --> V6
+C3 --> V7
+
+C4 --> V8
+C4 --> V9
+
+C5 --> V10
+C5 --> V11
+
+C6 --> V12
+C6 --> V13
 
 C2 --> S1
 C3 --> S2
 C4 --> S3
 C5 --> S4
+C6 --> S5
 
 S1 --> R1
-S2 --> R2
-S3 --> R3
-S4 --> R4
+S1 --> R2
+S1 --> R3
+S1 --> CA
+CA -->|"cache miss"| S6
+S6 --> R2
+
+S2 --> R4
+S3 --> R5
+S4 --> R6
+S5 --> R7
 
 R1 -->|"ORM"| E1
 R2 -->|"ORM"| E2
 R3 -->|"ORM"| E3
 R4 -->|"ORM"| E4
-E2 --- E5
-E3 --- E5
-E5 -->|"join table"| DB
+R5 -->|"ORM"| E5
+R6 -->|"ORM"| E6
+R7 -->|"ORM"| E7
+
 E1 --> DB
 E2 --> DB
 E3 --> DB
 E4 --> DB
+E5 --> DB
+E6 --> DB
+E7 --> DB
 
-CFG -->|"provides RestTemplate"| S1
-S1 -->|"REST GET"| EXT1
+CFG -->|"provides RestTemplate"| S6
+S6 -->|"REST GET"| EXT1
 
 %% ===== STYLING =====
 classDef client fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000;
@@ -300,6 +356,7 @@ classDef controller fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000;
 classDef service fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000;
 classDef repo fill:#ede7f6,stroke:#5e35b1,stroke-width:2px,color:#000;
 classDef entity fill:#e0f7fa,stroke:#00897b,stroke-width:2px,color:#000;
+classDef cache fill:#fffde7,stroke:#f9a825,stroke-width:2px,color:#000;
 classDef view fill:#fce4ec,stroke:#e53935,stroke-width:2px,color:#000;
 classDef config fill:#f1f8e9,stroke:#7cb342,stroke-width:2px,color:#000;
 classDef db fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#000;
@@ -307,11 +364,12 @@ classDef ext fill:#fbe9e7,stroke:#f4511e,stroke-width:2px,color:#000;
 
 class A client;
 class SEC security;
-class C1,C2,C3,C4,C5 controller;
-class S1,S2,S3,S4 service;
-class R1,R2,R3,R4 repo;
-class E1,E2,E3,E4,E5 entity;
-class V1,V2,V3,V4,V5,V6,V7,V8,V9 view;
+class C1,C2,C3,C4,C5,C6 controller;
+class S1,S2,S3,S4,S5,S6 service;
+class R1,R2,R3,R4,R5,R6,R7 repo;
+class E1,E2,E3,E4,E5,E6,E7 entity;
+class CA cache;
+class V1,V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,V12,V13 view;
 class CFG config;
 class DB db;
 class EXT1 ext;

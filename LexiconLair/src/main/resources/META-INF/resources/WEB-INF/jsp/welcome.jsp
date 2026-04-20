@@ -4,7 +4,8 @@
 	<div>Welcome to the Lexicon Lair!</div>
 	<div> Welcome: ${name}</div>
 	<hr/>
-	<div><a href="list-dictionary-entries">Manage your Dictionary Entries</a></div>
+	<div><a href="list-users">Manage your Users</a></div>
+	<div><a href="list-words">Manage your Words</a></div>
 </div>	
 <%@ include file="common/footer.jspf" %>
 	

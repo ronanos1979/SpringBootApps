@@ -2,33 +2,34 @@ package com.ronanos.lexiconlair.login;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
 @SessionAttributes("name")
 public class WelcomeController {
-	private Logger logger;	
-		
-	
-	@RequestMapping(value="/", method=RequestMethod.GET)
-	public String gotoWelcomePage(ModelMap model) {
-		model.put("name", getLoggedInUserName());
-		this.logger = LoggerFactory.getLogger(getClass());
-		logger.trace("Loading Welcome Page");
-		return "welcome";
-	}
-	
-	private String getLoggedInUserName() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		return authentication.getName();
-	}
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String gotoWelcomePage(ModelMap model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || authentication instanceof AnonymousAuthenticationToken
+                || "anonymousUser".equals(authentication.getName())) {
+            return "redirect:/login";
+        }
+        model.put("name", authentication.getName());
+        logger.trace("Loading Welcome Page");
+        return "welcome";
+    }
 
 // Commenting out as not needed as replaced by Spring Security
 //
@@ -69,6 +70,6 @@ public class WelcomeController {
 //		logger.error("Login failed for user " + name);
 //		return "login";			
 //	}
-	
-	
+
+
 }
