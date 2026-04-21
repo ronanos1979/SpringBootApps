@@ -1,5 +1,5 @@
-<%@ include file="common/header.jspf" %>
-<%@ include file="common/navigation.jspf" %>
+<%@ include file="../common/header.jspf" %>
+<%@ include file="../common/navigation.jspf" %>
 
 <div class="container">
 	<div>Welcome ${name}</div>
@@ -34,5 +34,5 @@
 	</table>
 <a href="add-author" class="btn btn-success">Add Author</a>
 </div>
-<%@ include file="common/footer.jspf" %>
+<%@ include file="../common/footer.jspf" %>
 	

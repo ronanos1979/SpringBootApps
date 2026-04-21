@@ -1,5 +1,6 @@
 package com.ronanos.lexiconlair.login;
 
+import com.ronanos.lexiconlair.login.web.WelcomeController;
 import com.ronanos.lexiconlair.security.SpringSecurityConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,6 @@ class WelcomeControllerMockMvcTest {
         mockMvc.perform(get("/").with(user("ronan").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("welcome"))
-                .andExpect(model().attribute("name", "ronan"));
+                .andExpect(forwardedUrl("/WEB-INF/jsp/welcome.jsp"));
     }
 }

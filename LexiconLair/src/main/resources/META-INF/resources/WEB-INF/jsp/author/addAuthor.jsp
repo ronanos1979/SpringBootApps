@@ -1,5 +1,5 @@
-<%@ include file="common/header.jspf"%>
-<%@ include file="common/navigation.jspf"%>
+<%@ include file="../common/header.jspf"%>
+<%@ include file="../common/navigation.jspf"%>
 
 <div class="container">
 	<h1>Enter Author:</h1>
@@ -21,4 +21,4 @@
 		<input type="submit" class="btn btn-success" />
 	</form:form>
 </div>
-<%@ include file="common/footer.jspf"%>
+<%@ include file="../common/footer.jspf"%>

@@ -1,6 +1,6 @@
-package com.ronanos.lexiconlair.book;
+package com.ronanos.lexiconlair.book.domain;
 
-import com.ronanos.lexiconlair.author.Author;
+import com.ronanos.lexiconlair.author.domain.Author;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,7 +18,7 @@ public class Book {
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
-    protected Book() {}
+    public Book() {}
 
     public Book(String title, Author author) {
         this.title = title;

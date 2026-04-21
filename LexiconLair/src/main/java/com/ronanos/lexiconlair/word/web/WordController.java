@@ -1,7 +1,9 @@
-package com.ronanos.lexiconlair.word;
+package com.ronanos.lexiconlair.word.web;
 
 import java.util.List;
 
+import com.ronanos.lexiconlair.word.domain.Word;
+import com.ronanos.lexiconlair.word.persistence.WordRepository;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,19 +36,19 @@ public class WordController {
 	public String listAllWords(ModelMap model) {
 		List<Word> words = wordRepository.findAll();
 		model.addAttribute("words", words);
-		return "listWords";
+		return "word/listWords";
 	}
 
 	@RequestMapping(value = "add-word", method = RequestMethod.GET)
 	public String showNewWordPage(ModelMap model) {
-		model.put("word", new Word(0, "", ""));
-		return "addWord";
+		model.put("word", new Word("", ""));
+		return "word/addWord";
 	}
 
 	@RequestMapping(value = "add-word", method = RequestMethod.POST)
 	public String addNewWord(ModelMap model, @Valid @ModelAttribute("word") Word word, BindingResult result) {
 		if (result.hasErrors()) {
-			return "addWord";
+			return "word/addWord";
 		}
 		wordRepository.save(word);
 		logger.info("Created word {}", word.getText());
@@ -54,17 +56,17 @@ public class WordController {
 	}
 
 	@RequestMapping(value = "update-word", method = RequestMethod.GET)
-	public String showUpdateWordPage(@RequestParam int id, ModelMap model) {
+	public String showUpdateWordPage(@RequestParam Long id, ModelMap model) {
 		Word word = wordRepository.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found"));
 		model.addAttribute("word", word);
-		return "addWord";
+		return "word/addWord";
 	}
 	
 	@RequestMapping(value = "update-word", method = RequestMethod.POST)
 	public String updateWord(ModelMap model, @Valid @ModelAttribute("word") Word word, BindingResult result) {
 		if (result.hasErrors()) {
-			return "addWord";
+			return "word/addWord";
 		}
 		wordRepository.save(word);
 		logger.info("Updated word {}", word.getText());
@@ -72,7 +74,7 @@ public class WordController {
 	}
 
 	@PostMapping("delete-word")
-	public String deleteWord(@RequestParam int id) {
+	public String deleteWord(@RequestParam Long id) {
 		wordRepository.deleteById(id);
 		return "redirect:list-words";
 	}

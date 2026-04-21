@@ -1,47 +1,37 @@
-package com.ronanos.lexiconlair.author;
+package com.ronanos.lexiconlair.author.domain;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@Entity(name="Author")
+@Entity
+@Table(name = "authors")
 public class Author {
 
-    public Author() {
-
-    }
-
-    public Author(int id, String firstName, String lastName) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
-
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "my_seq")
-    @SequenceGenerator(name = "my_seq", initialValue = 1001, allocationSize = 50)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Column(nullable = false, length = 100)
     @NotBlank
     @Size(max = 100)
     private String firstName;
 
+    @Column(nullable = false, length = 100)
     @NotBlank
     @Size(max = 100)
     private String lastName;
 
-
-    public int getId() {
-        return id;
+    public Author() {
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public Author(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getFirstName() {
@@ -58,6 +48,10 @@ public class Author {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getDisplayName() {
+        return firstName + " " + lastName;
     }
 
     @Override

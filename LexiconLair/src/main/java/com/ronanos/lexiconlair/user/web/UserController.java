@@ -1,8 +1,10 @@
-package com.ronanos.lexiconlair.user;
+package com.ronanos.lexiconlair.user.web;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.ronanos.lexiconlair.user.domain.User;
+import com.ronanos.lexiconlair.user.persistence.UserRepository;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,20 +41,20 @@ public class UserController {
     public String listAllUsers(ModelMap model) {
         List<User> userList = userRepository.findAll();
         model.put("users", userList);
-        return "listUsers";
+        return "user/listUsers";
     }
 
     @RequestMapping(value = "add-user", method = RequestMethod.GET)
-    public String showNewUserPage(ModelMap model) {
+    public String showCreateUserForm(ModelMap model) {
         User user = new User("", "", "", "", "");
         model.addAttribute("user", user);
-        return "addUser";
+        return "user/addUser";
     }
 
     @RequestMapping(value = "add-user", method = RequestMethod.POST)
-    public String addUser(ModelMap model, @Valid @ModelAttribute("user") User user, BindingResult result) {
+    public String createUser(ModelMap model, @Valid @ModelAttribute("user") User user, BindingResult result) {
         if (result.hasErrors()) {
-            return "addUser";
+            return "user/addUser";
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setLastUpdated(LocalDateTime.now());
@@ -70,18 +72,18 @@ public class UserController {
     }
 
     @RequestMapping(value = "update-user")
-    public String showUpdateUserPage(@RequestParam Long id, ModelMap model) {
+    public String showUpdateUserForm(@RequestParam Long id, ModelMap model) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         user.setPassword("");
         model.addAttribute("user", user);
-        return "addUser";
+        return "user/addUser";
     }
 
     @RequestMapping(value = "update-user", method = RequestMethod.POST)
     public String updateUser(ModelMap model, @Valid @ModelAttribute("user") User user, BindingResult result) {
         if (result.hasErrors()) {
-            return "addUser";
+            return "user/addUser";
         }
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));

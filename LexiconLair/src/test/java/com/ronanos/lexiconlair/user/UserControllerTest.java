@@ -1,5 +1,8 @@
 package com.ronanos.lexiconlair.user;
 
+import com.ronanos.lexiconlair.user.domain.User;
+import com.ronanos.lexiconlair.user.persistence.UserRepository;
+import com.ronanos.lexiconlair.user.web.UserController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,7 +55,7 @@ class UserControllerTest {
 
         String viewName = controller.listAllUsers(model);
 
-        assertEquals("listUsers", viewName);
+        assertEquals("user/listUsers", viewName);
         assertSame(users, model.get("users"));
     }
 
@@ -59,9 +63,9 @@ class UserControllerTest {
     void showNewUserPageAddsBlankUserToModel() {
         ModelMap model = new ModelMap();
 
-        String viewName = controller.showNewUserPage(model);
+        String viewName = controller.showCreateUserForm(model);
 
-        assertEquals("addUser", viewName);
+        assertEquals("user/addUser", viewName);
         User user = (User) model.get("user");
         assertNull(user.getId());
         assertEquals("", user.getUsername());
@@ -72,32 +76,37 @@ class UserControllerTest {
     @Test
     void addUserReturnsFormViewWhenValidationFails() {
         SecurityContextHolder.getContext()
-                .setAuthentication(new TestingAuthenticationToken("ronan", "password"));
+                .setAuthentication(new TestingAuthenticationToken("ronan", "change-me"));
         ModelMap model = new ModelMap();
         User user = new User();
         BindingResult result = new BeanPropertyBindingResult(user, "user");
         result.reject("invalid");
 
-        String viewName = controller.addUser(model, user, result);
+        String viewName = controller.createUser(model, user, result);
 
-        assertEquals("addUser", viewName);
+        assertEquals("user/addUser", viewName);
         verify(userRepository, never()).save(user);
     }
 
     @Test
     void addUserSetsAuditFieldsSavesUserAndRedirects() {
+        SecurityContextHolder.getContext()
+                .setAuthentication(new TestingAuthenticationToken("ronan", "password"));
         ModelMap model = new ModelMap();
         User user = new User();
         user.setUsername("ronan");
         user.setPassword("password123");
         BindingResult result = new BeanPropertyBindingResult(user, "user");
+        User currentUser = new User();
+        currentUser.setId(42L);
         when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser));
 
-        String viewName = controller.addUser(model, user, result);
+        String viewName = controller.createUser(model, user, result);
 
         assertEquals("redirect:list-users", viewName);
         verify(userRepository).save(user);
-        assertNull(user.getUpdatedBy());
+        assertEquals(42L, user.getUpdatedBy());
         assertEquals("encoded-password", user.getPassword());
         assertEquals(LocalDateTime.now().toLocalDate(), user.getLastUpdated().toLocalDate());
         assertSame(user, model.get("user"));
@@ -120,9 +129,9 @@ class UserControllerTest {
         existing.setUsername("existing-user");
         when(userRepository.findById(8L)).thenReturn(Optional.of(existing));
 
-        String viewName = controller.showUpdateUserPage(8L, model);
+        String viewName = controller.showUpdateUserForm(8L, model);
 
-        assertEquals("addUser", viewName);
+        assertEquals("user/addUser", viewName);
         User modelUser = (User) model.get("user");
         assertSame(existing, modelUser);
         assertEquals("", modelUser.getPassword());
@@ -137,12 +146,14 @@ class UserControllerTest {
 
         String viewName = controller.updateUser(model, user, result);
 
-        assertEquals("addUser", viewName);
+        assertEquals("user/addUser", viewName);
         verify(userRepository, never()).save(user);
     }
 
     @Test
     void updateUserSetsAuditFieldsSavesUserAndRedirects() {
+        SecurityContextHolder.getContext()
+                .setAuthentication(new TestingAuthenticationToken("ronan", "password"));
         ModelMap model = new ModelMap();
         User user = new User();
         user.setId(9L);
@@ -150,15 +161,43 @@ class UserControllerTest {
         user.setPassword("new-password");
         BindingResult result = new BeanPropertyBindingResult(user, "user");
         User existingUser = new User();
+        User currentUser = new User();
+        currentUser.setId(21L);
         when(userRepository.findById(9L)).thenReturn(Optional.of(existingUser));
         when(passwordEncoder.encode("new-password")).thenReturn("encoded-password");
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser));
 
         String viewName = controller.updateUser(model, user, result);
 
         assertEquals("redirect:list-users", viewName);
         verify(userRepository).save(user);
-        assertNull(user.getUpdatedBy());
+        assertEquals(21L, user.getUpdatedBy());
         assertEquals("encoded-password", user.getPassword());
         assertEquals(LocalDateTime.now().toLocalDate(), user.getLastUpdated().toLocalDate());
+    }
+
+    @Test
+    void updateUserKeepsExistingPasswordWhenSubmittedPasswordIsBlank() {
+        SecurityContextHolder.getContext()
+                .setAuthentication(new TestingAuthenticationToken("ronan", "password"));
+        ModelMap model = new ModelMap();
+        User user = new User();
+        user.setId(9L);
+        user.setUsername("updated-user");
+        user.setPassword("   ");
+        BindingResult result = new BeanPropertyBindingResult(user, "user");
+        User existingUser = new User();
+        existingUser.setPassword("existing-encoded-password");
+        User currentUser = new User();
+        currentUser.setId(21L);
+        when(userRepository.findById(9L)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser));
+
+        String viewName = controller.updateUser(model, user, result);
+
+        assertEquals("redirect:list-users", viewName);
+        assertEquals("existing-encoded-password", user.getPassword());
+        assertEquals(21L, user.getUpdatedBy());
+        verify(userRepository).save(user);
     }
 }

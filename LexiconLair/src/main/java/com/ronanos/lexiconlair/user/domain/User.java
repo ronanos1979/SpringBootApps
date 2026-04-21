@@ -1,4 +1,4 @@
-package com.ronanos.lexiconlair.user;
+package com.ronanos.lexiconlair.user.domain;
 
 import java.time.LocalDateTime;
 
@@ -49,7 +49,7 @@ public class User {
 
     private Long updatedBy;
 
-    protected User() {
+    public User() {
     }
 
     public User(String username, String password, String email, String firstName, String lastName) {

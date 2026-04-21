@@ -1,6 +1,9 @@
 package com.ronanos.lexiconlair.word;
 
 import com.ronanos.lexiconlair.security.SpringSecurityConfiguration;
+import com.ronanos.lexiconlair.word.domain.Word;
+import com.ronanos.lexiconlair.word.persistence.WordRepository;
+import com.ronanos.lexiconlair.word.web.WordController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -11,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -35,12 +39,12 @@ class WordControllerMockMvcTest {
 
     @Test
     void listWordsReturnsRepositoryResultsForAuthenticatedUser() throws Exception {
-        List<Word> words = List.of(new Word(1, "lexicon", "en"));
+        List<Word> words = List.of(new Word("lexicon", "en"));
         when(wordRepository.findAll()).thenReturn(words);
 
         mockMvc.perform(get("/list-words").with(user("ronan").roles("USER")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("listWords"))
+                .andExpect(view().name("word/listWords"))
                 .andExpect(model().attribute("words", words));
     }
 
@@ -48,7 +52,7 @@ class WordControllerMockMvcTest {
     void addWordGetReturnsFormView() throws Exception {
         mockMvc.perform(get("/add-word").with(user("ronan").roles("USER")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("addWord"))
+                .andExpect(view().name("word/addWord"))
                 .andExpect(model().attributeExists("word"));
     }
 
@@ -75,7 +79,7 @@ class WordControllerMockMvcTest {
                         .param("text", "hi")
                         .param("locale", "en"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("addWord"))
+                .andExpect(view().name("word/addWord"))
                 .andExpect(model().attributeHasFieldErrors("word", "text"));
 
         verifyNoInteractions(wordRepository);
@@ -83,12 +87,12 @@ class WordControllerMockMvcTest {
 
     @Test
     void updateWordGetLoadsExistingWord() throws Exception {
-        Word existingWord = new Word(11, "update", "en");
-        when(wordRepository.findById(11)).thenReturn(Optional.of(existingWord));
+        Word existingWord = new Word("update", "en");
+        when(wordRepository.findById(anyLong())).thenReturn(Optional.of(existingWord));
 
         mockMvc.perform(get("/update-word").with(user("ronan").roles("USER")).param("id", "11"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("addWord"))
+                .andExpect(view().name("word/addWord"))
                 .andExpect(model().attribute("word", existingWord));
     }
 
@@ -101,6 +105,6 @@ class WordControllerMockMvcTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("list-words"));
 
-        verify(wordRepository).deleteById(17);
+        verify(wordRepository).deleteById(17L);
     }
 }

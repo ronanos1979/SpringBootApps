@@ -1,10 +1,10 @@
-<%@ include file="common/header.jspf"%>
-<%@ include file="common/navigation.jspf"%>
+<%@ include file="../common/header.jspf"%>
+<%@ include file="../common/navigation.jspf"%>
 
 <div class="container">
 	<h1>Enter Word Details:</h1>
-	<form:form method="POST" modelAttribute="book">
-
+	<form:form method="POST" modelAttribute="word">
+		<form:hidden path="id" />
 
 		<fieldset class="mb-3">
 			<form:label path="text">Text:</form:label>
@@ -22,9 +22,4 @@
 		<input type="submit" class="btn btn-success" />
 	</form:form>
 </div>
-<%@ include file="common/footer.jspf"%>
-<script type="text/javascript">
-	$('#dateAdded').datepicker({
-	    format: 'yyyy-mm-dd'
-	});
-	</script>
+<%@ include file="../common/footer.jspf"%>
