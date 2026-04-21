@@ -13,6 +13,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -55,6 +56,7 @@ class UserControllerJPAMockMvcTest {
     @Test
     void addUserPostRedirectsWhenPayloadIsAccepted() throws Exception {
         mockMvc.perform(post("/add-user")
+                        .with(csrf())
                         .with(user("ronan").roles("USER"))
                         .param("id", "0")
                         .param("username", "ronan")
@@ -72,7 +74,7 @@ class UserControllerJPAMockMvcTest {
     void updateUserGetLoadsExistingUser() throws Exception {
         User existingUser = new User();
         existingUser.setUsername("existing-user");
-        when(userRepository.findById(21)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findById(21L)).thenReturn(Optional.of(existingUser));
 
         mockMvc.perform(get("/update-user").with(user("ronan").roles("USER")).param("id", "21"))
                 .andExpect(status().isOk())
@@ -82,11 +84,14 @@ class UserControllerJPAMockMvcTest {
 
     @Test
     void deleteUserRedirectsAfterDeletingEntity() throws Exception {
-        mockMvc.perform(get("/delete-user").with(user("ronan").roles("USER")).param("id", "21"))
+        mockMvc.perform(post("/delete-user")
+                        .with(csrf())
+                        .with(user("ronan").roles("USER"))
+                        .param("id", "21"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("list-users"));
 
-        verify(userRepository).deleteById(21);
+        verify(userRepository).deleteById(21L);
     }
 
     @Test

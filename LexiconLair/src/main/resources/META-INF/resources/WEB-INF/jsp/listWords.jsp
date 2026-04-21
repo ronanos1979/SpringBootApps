@@ -22,7 +22,13 @@
 					<td>${word.text}</td>
 					<td>${word.locale}</td>
 					<td><a href="update-word?id=${word.id}" class="btn btn-primary">Update</a></td>
-					<td><a href="delete-word?id=${word.id}" class="btn btn-warning">Delete</a></td>
+					<td>
+						<form method="post" action="delete-word" class="d-inline">
+							<input type="hidden" name="id" value="${word.id}"/>
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+							<button type="submit" class="btn btn-warning">Delete</button>
+						</form>
+					</td>
 					
 				</tr>		
 			</c:forEach>

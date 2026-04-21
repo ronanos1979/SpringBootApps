@@ -2,18 +2,19 @@
 <%@ include file="common/navigation.jspf"%>
 
 <div class="container">
-	<h1>Enter Word Details:</h1>
+	<h1>Enter User Details:</h1>
 	<form:form method="POST" modelAttribute="user">
+		<form:hidden path="id" />
 
 		<fieldset class="mb-3">
 			<form:label path="username">Username:</form:label>
-			<form:input type="text" path="username" />
+			<form:input type="text" path="username" required="required" />
 			<form:errors path="username" cssClass="text-warning" />
 		</fieldset>
 
 		<fieldset class="mb-3">
 			<form:label path="password">Password:</form:label>
-			<form:input type="password" path="password" required="required" />
+			<form:password path="password" showPassword="false" />
 			<form:errors path="password" cssClass="text-warning" />
 		</fieldset>
 
@@ -40,8 +41,3 @@
 	</form:form>
 </div>
 <%@ include file="common/footer.jspf"%>
-<script type="text/javascript">
-	$('#dateAdded').datepicker({
-	    format: 'yyyy-mm-dd'
-	});
-	</script>

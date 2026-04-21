@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,7 +26,7 @@ class DictionaryServiceTest {
         DictionaryWordDTO expected = new DictionaryWordDTO();
         expected.setWord("lexicon");
         String expectedUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/lexicon";
-        when(restTemplate.getForObject(expectedUrl, DictionaryWordDTO.class, "lexicon")).thenReturn(expected);
+        when(restTemplate.getForObject(expectedUrl, DictionaryWordDTO.class)).thenReturn(expected);
 
         DictionaryWordDTO actual = dictionaryService.getMeaning("lexicon");
 
@@ -37,7 +36,7 @@ class DictionaryServiceTest {
     @Test
     void getMeaningReturnsEmptyDtoWhenApiReturnsNull() {
         String expectedUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/ghostword";
-        when(restTemplate.getForObject(expectedUrl, DictionaryWordDTO.class, "ghostword")).thenReturn(null);
+        when(restTemplate.getForObject(expectedUrl, DictionaryWordDTO.class)).thenReturn(null);
 
         DictionaryWordDTO actual = dictionaryService.getMeaning("ghostword");
 
@@ -47,7 +46,7 @@ class DictionaryServiceTest {
     @Test
     void getMeaningReturnsEmptyDtoWhenApiThrowsException() {
         String expectedUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/errorword";
-        when(restTemplate.getForObject(expectedUrl, DictionaryWordDTO.class, "errorword"))
+        when(restTemplate.getForObject(expectedUrl, DictionaryWordDTO.class))
                 .thenThrow(new RestClientException("dictionary api unavailable"));
 
         DictionaryWordDTO actual = dictionaryService.getMeaning("errorword");

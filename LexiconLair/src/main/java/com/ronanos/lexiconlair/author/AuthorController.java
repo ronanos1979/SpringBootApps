@@ -1,89 +1,81 @@
 package com.ronanos.lexiconlair.author;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
-
-import java.util.List;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 @SessionAttributes("name")
 public class AuthorController {
 
-    private AuthorRepository authorRepository;
+    private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
+
+    private final AuthorRepository authorRepository;
 
     public AuthorController(AuthorRepository authorRepository) {
-        super();
         this.authorRepository = authorRepository;
     }
 
-    @RequestMapping(value="list-authors")
+    @RequestMapping(value = "list-authors")
     public String listAllAuthors(ModelMap model) {
-        String userName = getLoggedInUsername(model);
         List<Author> authorList = authorRepository.findAll();
-
         model.put("authors", authorList);
         return "listAuthors";
     }
 
-    @RequestMapping(value="add-author", method=RequestMethod.GET)
+    @RequestMapping(value = "add-author", method = RequestMethod.GET)
     public String showAddNewAuthorPage(ModelMap model) {
-        String userName = getLoggedInUsername(model);
-
-        Author author = new Author(0, "", "");
-        model.addAttribute("author", author);
+        model.addAttribute("author", new Author(0, "", ""));
         return "addAuthor";
     }
 
-    @RequestMapping(value="add-author", method=RequestMethod.POST)
-    public String addNewAuthor(ModelMap model, @Valid Author author, BindingResult result) {
-        System.out.println("Incoming Author: " + author);
+    @RequestMapping(value = "add-author", method = RequestMethod.POST)
+    public String addNewAuthor(ModelMap model, @Valid @ModelAttribute("author") Author author, BindingResult result) {
         if (result.hasErrors()) {
             return "addAuthor";
         }
-        String username = getLoggedInUsername(model);
         model.addAttribute("author", author);
         authorRepository.save(author);
+        logger.info("Created author {} {}", author.getFirstName(), author.getLastName());
         return "redirect:list-authors";
     }
 
-    @RequestMapping(value="delete-author")
-    public String deleteAuthor(int id) {
+    @PostMapping("delete-author")
+    public String deleteAuthor(@RequestParam int id) {
         authorRepository.deleteById(id);
         return "redirect:list-authors";
     }
 
 
-    @RequestMapping(value="update-author", method=RequestMethod.GET)
-    public String showUpdateuthorPage(@RequestParam int id, ModelMap model) {
-        String userName = getLoggedInUsername(model);
-
-        Author author = authorRepository.findById(id).get();
+    @RequestMapping(value = "update-author", method = RequestMethod.GET)
+    public String showUpdateAuthorPage(@RequestParam int id, ModelMap model) {
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
         model.addAttribute("author", author);
         return "addAuthor";
     }
 
-    @RequestMapping(value="update-author", method=RequestMethod.POST)
-    public String updateAuthor(ModelMap model, @Valid Author author, BindingResult result) {
-        System.out.println("Incoming Author: " + author);
+    @RequestMapping(value = "update-author", method = RequestMethod.POST)
+    public String updateAuthor(ModelMap model, @Valid @ModelAttribute("author") Author author, BindingResult result) {
         if (result.hasErrors()) {
             return "addAuthor";
         }
-        String username = getLoggedInUsername(model);
         model.addAttribute("author", author);
         authorRepository.save(author);
+        logger.info("Updated author {} {}", author.getFirstName(), author.getLastName());
         return "redirect:list-authors";
-    }
-
-    private String getLoggedInUsername(ModelMap model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
     }
 }

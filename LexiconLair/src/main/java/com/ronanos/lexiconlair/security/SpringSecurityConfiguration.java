@@ -4,12 +4,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.function.Function;
 
+import jakarta.servlet.DispatcherType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,10 +21,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SpringSecurityConfiguration {
 
+	private final String demoPassword;
+
+	public SpringSecurityConfiguration(
+			@Value("${app.security.demo-password:change-me}") String demoPassword) {
+		this.demoPassword = demoPassword;
+	}
+
 	@Bean
 	public InMemoryUserDetailsManager createUserDetailsManager() {
-		UserDetails userDetails1 = createNewUser("ronan", "password");
-		UserDetails userDetails2 = createNewUser("ronan2", "password");
+		UserDetails userDetails1 = createNewUser("ronan", demoPassword);
+		UserDetails userDetails2 = createNewUser("ronan2", demoPassword);
 		return new InMemoryUserDetailsManager(userDetails1, userDetails2);
 	}
 
@@ -46,10 +53,18 @@ public class SpringSecurityConfiguration {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		return http
-				.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-				.formLogin(withDefaults())
-				.csrf(AbstractHttpConfigurer::disable)
-				.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+				.authorizeHttpRequests(auth -> auth
+						.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+						.requestMatchers("/login", "/error", "/favicon.ico", "/webjars/**").permitAll()
+						.anyRequest().authenticated())
+				.formLogin(form -> form
+						.loginPage("/login")
+						.defaultSuccessUrl("/", true)
+						.permitAll())
+				.logout(logout -> logout
+						.logoutSuccessUrl("/login?logout")
+						.permitAll())
+				.headers(headers -> headers.frameOptions(withDefaults()))
 				.build();
 	}
 }

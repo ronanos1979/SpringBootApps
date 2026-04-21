@@ -20,7 +20,13 @@
 					<td>${author.firstName}</td>
 					<td>${author.lastName}</td>
 					<td><a href="update-author?id=${author.id}" class="btn btn-primary">Update</a></td>
-					<td><a href="delete-author?id=${author.id}" class="btn btn-warning">Delete</a></td>
+					<td>
+						<form method="post" action="delete-author" class="d-inline">
+							<input type="hidden" name="id" value="${author.id}"/>
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+							<button type="submit" class="btn btn-warning">Delete</button>
+						</form>
+					</td>
 					
 				</tr>		
 			</c:forEach>

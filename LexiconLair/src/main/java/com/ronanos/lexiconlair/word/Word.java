@@ -1,22 +1,20 @@
 package com.ronanos.lexiconlair.word;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity(name = "word")
 public class Word {
-		
+
 	public Word() {
 	}
-	
+
 	public Word(int id, String text, String locale) {
-		super();
 		this.id = id;
 		this.text = text;
 		this.locale = locale;
@@ -26,9 +24,13 @@ public class Word {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "my_seq")
 	@SequenceGenerator(name = "my_seq", initialValue = 1001, allocationSize = 50)
 	private int id;
-	//
-	@Size(min=3, message="Minimum length is 5 characters")
+
+	@NotBlank
+	@Size(min = 3, max = 255, message = "Minimum length is 3 characters")
 	private String text;
+
+	@NotBlank
+	@Size(max = 20)
 	private String locale;
 
 	public int getId() {
@@ -36,7 +38,7 @@ public class Word {
 	}
 
 	public void setId(int id) {
-		this.id = id;		
+		this.id = id;
 	}
 
 	public String getText() {

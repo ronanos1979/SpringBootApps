@@ -14,6 +14,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,6 +55,7 @@ class WordControllerMockMvcTest {
     @Test
     void addWordPostRedirectsWhenPayloadIsValid() throws Exception {
         mockMvc.perform(post("/add-word")
+                        .with(csrf())
                         .with(user("ronan").roles("USER"))
                         .param("id", "0")
                         .param("text", "lexicon")
@@ -67,6 +69,7 @@ class WordControllerMockMvcTest {
     @Test
     void addWordPostReturnsFormWhenPayloadIsInvalid() throws Exception {
         mockMvc.perform(post("/add-word")
+                        .with(csrf())
                         .with(user("ronan").roles("USER"))
                         .param("id", "0")
                         .param("text", "hi")
@@ -91,7 +94,10 @@ class WordControllerMockMvcTest {
 
     @Test
     void deleteWordRedirectsAfterDeletingEntity() throws Exception {
-        mockMvc.perform(get("/delete-word").with(user("ronan").roles("USER")).param("id", "17"))
+        mockMvc.perform(post("/delete-word")
+                        .with(csrf())
+                        .with(user("ronan").roles("USER"))
+                        .param("id", "17"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("list-words"));
 

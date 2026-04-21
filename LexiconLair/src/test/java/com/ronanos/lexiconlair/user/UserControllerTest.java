@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -28,6 +29,9 @@ class UserControllerTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserController controller;
@@ -85,23 +89,26 @@ class UserControllerTest {
         ModelMap model = new ModelMap();
         User user = new User();
         user.setUsername("ronan");
+        user.setPassword("password123");
         BindingResult result = new BeanPropertyBindingResult(user, "user");
+        when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
 
         String viewName = controller.addUser(model, user, result);
 
         assertEquals("redirect:list-users", viewName);
         verify(userRepository).save(user);
-        assertEquals(0L, user.getUpdatedBy());
+        assertNull(user.getUpdatedBy());
+        assertEquals("encoded-password", user.getPassword());
         assertEquals(LocalDateTime.now().toLocalDate(), user.getLastUpdated().toLocalDate());
         assertSame(user, model.get("user"));
     }
 
     @Test
     void deleteUserDeletesByIdAndRedirects() {
-        String viewName = controller.deleteUser(17);
+        String viewName = controller.deleteUser(17L);
 
         assertEquals("redirect:list-users", viewName);
-        verify(userRepository).deleteById(17);
+        verify(userRepository).deleteById(17L);
     }
 
     @Test
@@ -111,12 +118,14 @@ class UserControllerTest {
         ModelMap model = new ModelMap();
         User existing = new User();
         existing.setUsername("existing-user");
-        when(userRepository.findById(8)).thenReturn(Optional.of(existing));
+        when(userRepository.findById(8L)).thenReturn(Optional.of(existing));
 
-        String viewName = controller.showUpdateUserPage(8, model);
+        String viewName = controller.showUpdateUserPage(8L, model);
 
         assertEquals("addUser", viewName);
-        assertSame(existing, model.get("user"));
+        User modelUser = (User) model.get("user");
+        assertSame(existing, modelUser);
+        assertEquals("", modelUser.getPassword());
     }
 
     @Test
@@ -128,7 +137,7 @@ class UserControllerTest {
 
         String viewName = controller.updateUser(model, user, result);
 
-        assertEquals("redirect:list-users", viewName);
+        assertEquals("addUser", viewName);
         verify(userRepository, never()).save(user);
     }
 
@@ -136,14 +145,20 @@ class UserControllerTest {
     void updateUserSetsAuditFieldsSavesUserAndRedirects() {
         ModelMap model = new ModelMap();
         User user = new User();
+        user.setId(9L);
         user.setUsername("updated-user");
+        user.setPassword("new-password");
         BindingResult result = new BeanPropertyBindingResult(user, "user");
+        User existingUser = new User();
+        when(userRepository.findById(9L)).thenReturn(Optional.of(existingUser));
+        when(passwordEncoder.encode("new-password")).thenReturn("encoded-password");
 
         String viewName = controller.updateUser(model, user, result);
 
         assertEquals("redirect:list-users", viewName);
         verify(userRepository).save(user);
-        assertEquals(0L, user.getUpdatedBy());
+        assertNull(user.getUpdatedBy());
+        assertEquals("encoded-password", user.getPassword());
         assertEquals(LocalDateTime.now().toLocalDate(), user.getLastUpdated().toLocalDate());
     }
 }

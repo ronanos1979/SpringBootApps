@@ -41,7 +41,7 @@ public class Book {
         this.title = title;
     }
 
-    public void setAuthorId(Author author) {
+    public void setAuthor(Author author) {
         this.author = author;
     }
 
@@ -50,7 +50,7 @@ public class Book {
         return "Book{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", author=" + author +
+                ", authorId=" + (author != null ? author.getId() : null) +
                 '}';
     }
 }

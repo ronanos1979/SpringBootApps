@@ -4,7 +4,7 @@
 <div class="container">
 	<h1>Enter Word Details:</h1>
 	<form:form method="POST" modelAttribute="word">
-
+		<form:hidden path="id" />
 
 		<fieldset class="mb-3">
 			<form:label path="text">Text:</form:label>
@@ -23,8 +23,3 @@
 	</form:form>
 </div>
 <%@ include file="common/footer.jspf"%>
-<script type="text/javascript">
-	$('#dateAdded').datepicker({
-	    format: 'yyyy-mm-dd'
-	});
-	</script>

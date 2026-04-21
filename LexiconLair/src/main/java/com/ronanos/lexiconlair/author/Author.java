@@ -1,7 +1,13 @@
 package com.ronanos.lexiconlair.author;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity(name="Author")
 public class Author {
@@ -20,7 +26,13 @@ public class Author {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "my_seq")
     @SequenceGenerator(name = "my_seq", initialValue = 1001, allocationSize = 50)
     private int id;
+
+    @NotBlank
+    @Size(max = 100)
     private String firstName;
+
+    @NotBlank
+    @Size(max = 100)
     private String lastName;
 
 

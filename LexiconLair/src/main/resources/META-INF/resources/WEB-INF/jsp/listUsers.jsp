@@ -10,7 +10,6 @@
 			<tr>				
 				<th>Id</th>
 				<th>Username</th>
-				<th>Password</th>
 				<th>Email</th>
 				<th>FirstName</th>
 				<th>LastName</th>
@@ -23,14 +22,19 @@
 				<tr>	
 					<td>${user.id}</td>
 					<td>${user.username}</td>
-					<td>${user.password}</td>
 					<td>${user.email}</td>
 					<td>${user.firstName}</td>
 					<td>${user.lastName}</td>
 					<td>${user.updatedBy}</td>
 					<td>${user.lastUpdated}</td>
 					<td><a href="update-user?id=${user.id}" class="btn btn-primary">Update</a></td>
-					<td><a href="delete-user?id=${user.id}" class="btn btn-warning">Delete</a></td>
+					<td>
+						<form method="post" action="delete-user" class="d-inline">
+							<input type="hidden" name="id" value="${user.id}"/>
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+							<button type="submit" class="btn btn-warning">Delete</button>
+						</form>
+					</td>
 					
 				</tr>		
 			</c:forEach>
