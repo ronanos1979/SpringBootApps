@@ -1,4 +1,4 @@
-package com.ronanos.lexiconlair.dictionary;
+package com.ronanos.lexiconlair.dictionary.dto;
 
 
 import java.util.List;

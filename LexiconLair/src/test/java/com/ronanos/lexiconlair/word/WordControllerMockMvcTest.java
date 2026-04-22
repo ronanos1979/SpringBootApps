@@ -3,6 +3,7 @@ package com.ronanos.lexiconlair.word;
 import com.ronanos.lexiconlair.security.SpringSecurityConfiguration;
 import com.ronanos.lexiconlair.word.domain.Word;
 import com.ronanos.lexiconlair.word.persistence.WordRepository;
+import com.ronanos.lexiconlair.word.service.WordDefinitionService;
 import com.ronanos.lexiconlair.word.web.WordController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ class WordControllerMockMvcTest {
     @MockitoBean
     private WordRepository wordRepository;
 
+    @MockitoBean
+    private WordDefinitionService wordDefinitionService;
+
     @Test
     void listWordsReturnsRepositoryResultsForAuthenticatedUser() throws Exception {
         List<Word> words = List.of(new Word("lexicon", "en"));
@@ -63,11 +67,11 @@ class WordControllerMockMvcTest {
                         .with(user("ronan").roles("USER"))
                         .param("id", "0")
                         .param("text", "lexicon")
-                        .param("locale", "en"))
+                        .param("language", "en"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("list-words"));
 
-        verify(wordRepository).save(org.mockito.ArgumentMatchers.any(Word.class));
+        verify(wordDefinitionService).saveWordWithDefinitions(org.mockito.ArgumentMatchers.any(Word.class));
     }
 
     @Test
@@ -77,12 +81,13 @@ class WordControllerMockMvcTest {
                         .with(user("ronan").roles("USER"))
                         .param("id", "0")
                         .param("text", "hi")
-                        .param("locale", "en"))
+                        .param("language", "en"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("word/addWord"))
                 .andExpect(model().attributeHasFieldErrors("word", "text"));
 
         verifyNoInteractions(wordRepository);
+        verifyNoInteractions(wordDefinitionService);
     }
 
     @Test

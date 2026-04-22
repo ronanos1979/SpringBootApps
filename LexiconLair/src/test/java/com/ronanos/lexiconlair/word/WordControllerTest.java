@@ -2,6 +2,7 @@ package com.ronanos.lexiconlair.word;
 
 import com.ronanos.lexiconlair.word.domain.Word;
 import com.ronanos.lexiconlair.word.persistence.WordRepository;
+import com.ronanos.lexiconlair.word.service.WordDefinitionService;
 import com.ronanos.lexiconlair.word.web.WordController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ class WordControllerTest {
 
     @Mock
     private WordRepository wordRepository;
+
+    @Mock
+    private WordDefinitionService wordDefinitionService;
 
     @InjectMocks
     private WordController controller;
@@ -61,7 +65,7 @@ class WordControllerTest {
         assertEquals("word/addWord", viewName);
         Word word = (Word) model.get("word");
         assertEquals("", word.getText());
-        assertEquals("", word.getLocale());
+        assertEquals("", word.getLanguage());
     }
 
     @Test
@@ -90,7 +94,7 @@ class WordControllerTest {
         String viewName = controller.addNewWord(model, word, result);
 
         assertEquals("redirect:list-words", viewName);
-        verify(wordRepository).save(word);
+        verify(wordDefinitionService).saveWordWithDefinitions(word);
     }
 
     @Test

@@ -10,9 +10,9 @@ public class Word {
 	public Word() {
 	}
 
-	public Word(String text, String locale) {
+	public Word(String text, String language) {
 		this.text = text;
-		this.locale = locale;
+		this.language = language;
 	}
 
 	@Id
@@ -26,7 +26,7 @@ public class Word {
 
 	@NotBlank
 	@Size(max = 20)
-	private String locale;
+	private String language;
 
 	public Long getId() {
 		return id;
@@ -40,12 +40,12 @@ public class Word {
 		this.text = text;
 	}
 
-	public String getLocale() {
-		return locale;
+	public String getLanguage() {
+		return language;
 	}
 
-	public void setLocale(String locale) {
-		this.locale = locale;
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class Word {
 		return "Word{" +
 				"id=" + id +
 				", text='" + text + '\'' +
-				", locale='" + locale + '\'' +
+				", language='" + language + '\'' +
 				'}';
 	}
 }

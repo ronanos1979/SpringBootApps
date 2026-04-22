@@ -10,7 +10,7 @@
 			<tr>				
 				<th>Id</th>
 				<th>Text</th>
-				<th>Locale</th>
+				<th>Language</th>
 				<th></th>
 				<th></th>
 			</tr>	
@@ -20,7 +20,7 @@
 				<tr>	
 					<td>${word.id}</td>
 					<td>${word.text}</td>
-					<td>${word.locale}</td>
+					<td>${word.language}</td>
 					<td><a href="update-word?id=${word.id}" class="btn btn-primary">Update</a></td>
 					<td>
 						<form method="post" action="delete-word" class="d-inline">

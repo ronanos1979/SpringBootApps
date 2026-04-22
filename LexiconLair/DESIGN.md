@@ -9,59 +9,65 @@ This is mermaid syntax
 ```mermaid
 erDiagram
     USER {
-        int id PK
+        long id PK
         string username
         string password
         string first_name
         string last_name
         string email
-        date created_at
+        datetime created_at
+        int created_by
+        datetime updated_at
+        int updated_by
     }
 
     WORD {
-        int id PK
+        long id PK
         string text
         string language
     }
 
     USERWORD {
-        int id PK
-        int user_id FK
-        int word_id FK
-        int book_id FK
-        Date saved_at
+        long id PK
+        long user_id FK
+        long word_id FK
+        long book_id FK
+        datetime saved_at
         String notes
     }
     
     DEFINITION {
-        int id PK
-        int word_id FK
+        long id PK
+        long word_id FK
         String definition_text
         String part_of_speech
         String example
-        int source_api
-        Date cached_at
+        String source_api
+        datetime cached_at
     }
 
     BOOK {
-        int id PK
+        long id PK
         string title
-        int author_id FK
+        long author_id FK
     }
 
     AUTHOR {
-        int id PK
-        string firstName
-        string lastName
+        long id PK
+        string first_name
+        string last_name
     }
 
     REVIEW {
-        int id PK
-        int user_id FK
-        int book_id FK
+        long id PK
+        long user_id FK
+        long book_id FK
         int rating
         String comment
-        Date created_at
+        datetime created_at
+        int created_by
+        datetime updated_at
+        int updated_by
     }
 
 

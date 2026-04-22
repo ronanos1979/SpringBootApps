@@ -57,8 +57,8 @@ public class UserController {
             return "user/addUser";
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setLastUpdated(LocalDateTime.now());
-        user.setUpdatedBy(getCurrentUserId());
+        user.setCreatedAt(LocalDateTime.now());
+        user.setCreatedBy(getCurrentUserId());
         model.addAttribute("user", user);
         userRepository.save(user);
         logger.info("Created user {}", user.getUsername());
@@ -95,7 +95,7 @@ public class UserController {
         }
 
         user.setUpdatedBy(getCurrentUserId());
-        user.setLastUpdated(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
         logger.info("Updated user {}", user.getUsername());
 

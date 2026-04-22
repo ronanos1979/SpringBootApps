@@ -13,8 +13,10 @@
 				<th>Email</th>
 				<th>FirstName</th>
 				<th>LastName</th>
+				<th>Created At</th>
+				<th>Created By</th>
+				<th>Updated At</th>
 				<th>Updated By</th>
-				<th>Last Updated</th>
 			</tr>	
 		</thead>
 		<tbody>	
@@ -25,8 +27,10 @@
 					<td>${user.email}</td>
 					<td>${user.firstName}</td>
 					<td>${user.lastName}</td>
+					<td>${user.createdAt}</td>
+					<td>${user.createdBy}</td>
+					<td>${user.updatedAt}</td>
 					<td>${user.updatedBy}</td>
-					<td>${user.lastUpdated}</td>
 					<td><a href="update-user?id=${user.id}" class="btn btn-primary">Update</a></td>
 					<td>
 						<form method="post" action="delete-user" class="d-inline">

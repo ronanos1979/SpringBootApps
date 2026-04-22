@@ -14,9 +14,9 @@
 
 
 		<fieldset class="mb-3">
-			<form:label path="locale">Locale:</form:label>
-			<form:input type="text" path="locale" />
-			<form:errors path="locale" cssClass="text-warning" />
+			<form:label path="language">Language:</form:label>
+			<form:input type="text" path="language" />
+			<form:errors path="language" cssClass="text-warning" />
 		</fieldset>
 
 		<input type="submit" class="btn btn-success" />

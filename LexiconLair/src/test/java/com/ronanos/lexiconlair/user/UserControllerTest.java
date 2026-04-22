@@ -106,9 +106,9 @@ class UserControllerTest {
 
         assertEquals("redirect:list-users", viewName);
         verify(userRepository).save(user);
-        assertEquals(42L, user.getUpdatedBy());
+        assertEquals(42L, user.getCreatedBy());
         assertEquals("encoded-password", user.getPassword());
-        assertEquals(LocalDateTime.now().toLocalDate(), user.getLastUpdated().toLocalDate());
+        assertEquals(LocalDateTime.now().toLocalDate(), user.getCreatedAt().toLocalDate());
         assertSame(user, model.get("user"));
     }
 
@@ -173,7 +173,7 @@ class UserControllerTest {
         verify(userRepository).save(user);
         assertEquals(21L, user.getUpdatedBy());
         assertEquals("encoded-password", user.getPassword());
-        assertEquals(LocalDateTime.now().toLocalDate(), user.getLastUpdated().toLocalDate());
+        assertEquals(LocalDateTime.now().toLocalDate(), user.getUpdatedAt().toLocalDate());
     }
 
     @Test

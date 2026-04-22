@@ -4,7 +4,7 @@ import com.ronanos.lexiconlair.author.domain.Author;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="books")
+@Table(name="book")
 public class Book {
 
     @Id
