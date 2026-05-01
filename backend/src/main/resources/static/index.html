@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Backend API</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+        line-height: 1.5;
+        color: #1f2937;
+        background: #f8fafc;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      main {
+        max-width: 840px;
+        margin: 0 auto;
+        padding: 56px 24px;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 40px;
+        line-height: 1.1;
+        color: #111827;
+      }
+
+      p {
+        margin: 0 0 24px;
+        color: #4b5563;
+      }
+
+      section {
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 20px;
+        background: #ffffff;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 20px;
+        color: #111827;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      code {
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 0.95em;
+        color: #0f172a;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color: #e5e7eb;
+          background: #111827;
+        }
+
+        h1,
+        h2,
+        code {
+          color: #f9fafb;
+        }
+
+        p {
+          color: #cbd5e1;
+        }
+
+        section {
+          background: #1f2937;
+          border-color: #374151;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Backend API</h1>
+      <p>The Spring Boot backend is running.</p>
+
+      <section>
+        <h2>Useful Endpoints</h2>
+        <ul>
+          <li><code>POST /api/auth/login</code></li>
+          <li><code>GET /api/auth/me</code></li>
+          <li><code>POST /api/auth/logout</code></li>
+          <li><code>GET /api/users</code></li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
