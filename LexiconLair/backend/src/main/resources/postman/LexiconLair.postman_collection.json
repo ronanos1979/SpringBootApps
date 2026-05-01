@@ -1,0 +1,575 @@
+{
+  "info": {
+    "_postman_id": "fe9d6c4a-285b-40e8-978b-c41995fbac23",
+    "name": "LexiconLair",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54443142",
+    "_collection_link": "https://go.postman.co/collection/54443142-fe9d6c4a-285b-40e8-978b-c41995fbac23?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "backend",
+      "item": [
+        {
+          "name": "auth",
+          "item": [
+            {
+              "name": "Login",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "username",
+                      "value": "admin",
+                      "type": "text"
+                    },
+                    {
+                      "key": "password",
+                      "value": "change-me",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/auth/login",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "auth", "login"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": []
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/auth/logout",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "auth", "logout"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Currently Logged In User",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/auth/me",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "auth", "me"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "users",
+          "item": [
+            {
+              "name": "List Users",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/users",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "users"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get User",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/users/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "users", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create User",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\",\n  \"email\": \"testuser@example.com\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/users",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "users"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"testuserupdated\",\n  \"password\": \"password123updated\",\n  \"email\": \"testuserupdated@example.com\",\n  \"firstName\": \"Test Updated\",\n  \"lastName\": \"User Updated\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/users/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "users", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete User",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/users/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "users", "1"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "authors",
+          "item": [
+            {
+              "name": "List Authors",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/authors",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "authors"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Author",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/authors/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "authors", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Author",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"George\",\n  \"lastName\": \"Orwell\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/authors",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "authors"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Author",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"George\",\n  \"lastName\": \"Orwell Updated\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/authors/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "authors", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Author",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/authors/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "authors", "1"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "words",
+          "item": [
+            {
+              "name": "List Words",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/words",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "words"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Word",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/words/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "words", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Word",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"ephemeral\",\n  \"language\": \"English\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/words",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "words"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Word",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"ephemeral\",\n  \"language\": \"en-US\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/words/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "words", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Word",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/words/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "words", "1"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "books",
+          "item": [
+            {
+              "name": "List Books",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/books",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "books"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Book",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/books/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "books", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Book",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Nineteen Eighty-Four\",\n  \"authorId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/books",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "books"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Book",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Nineteen Eighty-Four (Revised)\",\n  \"authorId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/books/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "books", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Book",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/books/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "books", "1"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "definitions",
+          "item": [
+            {
+              "name": "List Definitions",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/definitions",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "definitions"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Definition",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/definitions/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "definitions", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Definition",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"wordId\": 1,\n  \"definitionText\": \"Lasting for a very short time.\",\n  \"partOfSpeech\": \"adjective\",\n  \"example\": \"Fashion is ephemeral.\",\n  \"sourceApi\": \"Merriam-Webster\",\n  \"cachedAt\": \"2026-05-01T12:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/definitions",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "definitions"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Definition",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"wordId\": 1,\n  \"definitionText\": \"Lasting for a very short time; transitory.\",\n  \"partOfSpeech\": \"adjective\",\n  \"example\": \"Fame is ephemeral.\",\n  \"sourceApi\": \"Merriam-Webster\",\n  \"cachedAt\": \"2026-05-01T12:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/definitions/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "definitions", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Definition",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{protocol}}://{{host}}:{{port}}/api/definitions/1",
+                  "protocol": "{{protocol}}",
+                  "host": ["{{host}}"],
+                  "port": "{{port}}",
+                  "path": ["api", "definitions", "1"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
