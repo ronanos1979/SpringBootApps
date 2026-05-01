@@ -2,11 +2,11 @@ package com.ronanos.lexiconlair;
 
 import org.junit.jupiter.api.Test;
 
-class LexiconLairApplicationTests {
+class LexiconLairMVCApplicationTests {
 
 	@Test
 	void applicationClassLoads() {
-		LexiconLairApplication application = new LexiconLairApplication();
+		LexiconLairMVCApplication application = new LexiconLairMVCApplication();
 	}
 
 }

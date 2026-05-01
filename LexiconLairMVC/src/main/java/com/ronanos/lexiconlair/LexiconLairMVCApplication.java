@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LexiconLairApplication {
+public class LexiconLairMVCApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LexiconLairApplication.class, args);
+		SpringApplication.run(LexiconLairMVCApplication.class, args);
 	}
 
 }

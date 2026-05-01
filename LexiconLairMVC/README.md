@@ -1,4 +1,4 @@
-# LexiconLair
+# LexiconLairMVC
 This is a simple spring boot application I wrote just for getting familiar with Spring Boot. The intention is to enter words I do not know when I am reading regular books and get the dictionary entry added. 
 
 
