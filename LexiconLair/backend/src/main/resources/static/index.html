@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LexiconLair API</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous">
+    <style>
+      body {
+        background: #f8f9fa;
+      }
+
+      .endpoint code {
+        color: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+      <div class="container">
+        <span class="navbar-brand fw-semibold">LexiconLair</span>
+        <span class="badge text-bg-success">API running</span>
+      </div>
+    </nav>
+
+    <main class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+          <div class="mb-4">
+            <p class="text-uppercase text-secondary fw-semibold small mb-2">Spring Boot REST backend</p>
+            <h1 class="display-5 fw-semibold mb-3">LexiconLair API</h1>
+            <p class="lead text-secondary mb-0">
+              The backend is available on port 8080 and serves JSON APIs for the React SPA.
+            </p>
+          </div>
+
+          <div class="alert alert-info d-flex align-items-start gap-3" role="alert">
+            <div class="fw-semibold">Local frontend</div>
+            <div>
+              The React app runs from <code>http://localhost:5173</code>. API calls should include credentials so the session cookie is sent.
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-header fw-semibold">Authentication</div>
+                <div class="list-group list-group-flush endpoint">
+                  <div class="list-group-item d-flex justify-content-between">
+                    <code>POST /api/auth/login</code>
+                    <span class="badge text-bg-primary">public</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <code>GET /api/auth/me</code>
+                    <span class="badge text-bg-secondary">session</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <code>POST /api/auth/logout</code>
+                    <span class="badge text-bg-secondary">session</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-header fw-semibold">Entities</div>
+                <div class="list-group list-group-flush endpoint">
+                  <div class="list-group-item"><code>/api/authors</code></div>
+                  <div class="list-group-item"><code>/api/books</code></div>
+                  <div class="list-group-item"><code>/api/words</code></div>
+                  <div class="list-group-item"><code>/api/definitions</code></div>
+                  <div class="list-group-item"><code>/api/users</code></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card shadow-sm mt-4">
+            <div class="card-body">
+              <h2 class="h5 card-title">API conventions</h2>
+              <p class="card-text text-secondary">
+                Entity endpoints support collection <code>GET</code> and <code>POST</code>, plus item-level
+                <code>GET</code>, <code>PUT</code>, and <code>DELETE</code> with <code>/{id}</code>.
+                Request and response DTOs define the JSON contract.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"></script>
+  </body>
+</html>
