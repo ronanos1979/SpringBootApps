@@ -40,7 +40,7 @@ Then use this
 
 ```
 CREATE DATABASE lexiconlair;
-CREATE USER "lexiconlair-user" WITH PASSWORD 'dummylexiconlair';
+CREATE USER "lexiconlair-user" WITH PASSWORD 'change-me';
 GRANT ALL PRIVILEGES ON DATABASE lexiconlair TO "lexiconlair-user";
 \c lexiconlair
 -- allow the user to use the schema
@@ -224,9 +224,9 @@ public interface TodoRespoiutory extends JpaRepository<Todo, Integer>{}
 ### MySQL
 ```
 create database todos;
-CREATE USER 'todos-user'@'localhost';
+CREATE USER 'lexiconlair-user'@'localhost';
 GRANT ALL PRIVILEGES ON todos.* To 'todos-user'@'localhost';
-alter user 'todos-user'@'localhost' IDENTIFIED BY 'dummytodos';
+alter user 'lexiconlair-user'@'localhost' IDENTIFIED BY 'change-me';
 ```
 
 
@@ -234,7 +234,7 @@ alter user 'todos-user'@'localhost' IDENTIFIED BY 'dummytodos';
 ## Docker
 
 ### Docker MySQL
-docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 mysql:8-oracle
+docker run --detach --env MYSQL_ROOT_PASSWORD=change-me --env MYSQL_USER=lexiconlair-user --env MYSQL_PASSWORD=change-me --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 mysql:8-oracle
 
 
 ### Docker commands

@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="LexiconLairMVCApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <envs>
+      <env name="LEXICONLAIR_DEMO_PASSWORD" value="change-me" />
+      <env name="LEXICONLAIR_PG_PASSWORD" value="change-me" />
+    </envs>
+    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+    <module name="LexiconLairMVC.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.ronanos.lexiconlair.LexiconLairMVCApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
