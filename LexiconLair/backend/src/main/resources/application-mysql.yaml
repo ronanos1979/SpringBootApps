@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: ${LEXICONLAIR_MYSQL_URL:jdbc:mysql://localhost:3306/lexiconlair}
+    username: ${LEXICONLAIR_MYSQL_USERNAME:lexiconlair-user}
+    password: ${LEXICONLAIR_MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  sql:
+    init:
+      platform: mysql

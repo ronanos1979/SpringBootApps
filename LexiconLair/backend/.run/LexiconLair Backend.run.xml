@@ -3,8 +3,10 @@
     <envs>
       <env name="LEXICONLAIR_DEMO_PASSWORD" value="change-me" />
       <env name="LEXICONLAIR_PG_PASSWORD" value="change-me" />
+      <env name="SPRING_PROFILES_ACTIVE" value="postgresql" />
     </envs>
     <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+    <option name="VM_PARAMETERS" value="-Dspring.config.additional-location=optional:file:./src/main/resources/" />
     <module name="LexiconLair.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ronanos.lexiconlair.LexiconLairApplication" />
     <method v="2">
