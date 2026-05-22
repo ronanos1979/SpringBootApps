@@ -64,6 +64,10 @@ export function updateAdminSettings(settings) {
   return jsonRequest('/api/admin/settings', 'PUT', settings);
 }
 
+export function getGameQuestion(mode) {
+  return request(`/api/game/question?mode=${encodeURIComponent(mode)}`);
+}
+
 export function listAuthors() {
   return request('/api/authors');
 }

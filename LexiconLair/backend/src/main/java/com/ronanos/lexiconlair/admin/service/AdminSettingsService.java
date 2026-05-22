@@ -12,6 +12,8 @@ public class AdminSettingsService {
     public static final long SETTINGS_ID = 1L;
     private static final int DEFAULT_EXTERNAL_API_DELAY_MS = 50;
     private static final int DEFAULT_EXTERNAL_API_BATCH_SIZE = 10;
+    private static final int DEFAULT_GAME_OPTION_COUNT = 4;
+    private static final int DEFAULT_GAME_QUESTION_COUNT = 10;
 
     private final AdminSettingsRepository adminSettingsRepository;
 
@@ -23,7 +25,12 @@ public class AdminSettingsService {
     public AdminSettings getSettings() {
         return adminSettingsRepository.findById(SETTINGS_ID)
                 .orElseGet(() -> adminSettingsRepository.save(
-                        new AdminSettings(SETTINGS_ID, DEFAULT_EXTERNAL_API_DELAY_MS, DEFAULT_EXTERNAL_API_BATCH_SIZE)));
+                        new AdminSettings(
+                                SETTINGS_ID,
+                                DEFAULT_EXTERNAL_API_DELAY_MS,
+                                DEFAULT_EXTERNAL_API_BATCH_SIZE,
+                                DEFAULT_GAME_OPTION_COUNT,
+                                DEFAULT_GAME_QUESTION_COUNT)));
     }
 
     @Transactional
@@ -31,6 +38,8 @@ public class AdminSettingsService {
         AdminSettings settings = getSettings();
         settings.setExternalApiDelayMs(request.externalApiDelayMs());
         settings.setExternalApiBatchSize(request.externalApiBatchSize());
+        settings.setGameOptionCount(request.gameOptionCount());
+        settings.setGameQuestionCount(request.gameQuestionCount());
         return adminSettingsRepository.save(settings);
     }
 }

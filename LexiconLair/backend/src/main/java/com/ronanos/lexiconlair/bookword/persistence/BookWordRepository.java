@@ -1,6 +1,7 @@
 package com.ronanos.lexiconlair.bookword.persistence;
 
 import com.ronanos.lexiconlair.bookword.domain.BookWord;
+import com.ronanos.lexiconlair.word.domain.Word;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,7 @@ public interface BookWordRepository extends JpaRepository<BookWord, Long> {
 
     @Query("SELECT bw FROM BookWord bw WHERE LOWER(bw.word.text) LIKE LOWER(CONCAT('%', :q, '%')) ORDER BY bw.word.text, bw.createdAt DESC")
     List<BookWord> searchAll(@Param("q") String q);
+
+    @Query("SELECT DISTINCT bw.word FROM BookWord bw WHERE bw.createdBy = :userId")
+    List<Word> findDistinctWordsByCreatedBy(@Param("userId") Long userId);
 }

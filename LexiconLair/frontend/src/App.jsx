@@ -15,6 +15,7 @@ import ListUsers from './pages/users/ListUsers';
 import AddUser from './pages/users/AddUser';
 import ListDefinitions from './pages/definitions/ListDefinitions';
 import AdminSettings from './pages/admin/AdminSettings';
+import Game from './pages/game/Game';
 
 // Client-side routes for the LexiconLair SPA.
 function App() {
@@ -53,6 +54,7 @@ function App() {
           <Route path="/definitions" element={<RequireAuth><ListDefinitions /></RequireAuth>} />
 
           <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
+          <Route path="/game" element={<RequireAuth><Game /></RequireAuth>} />
 
           {/* Catch-all redirects unknown paths to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

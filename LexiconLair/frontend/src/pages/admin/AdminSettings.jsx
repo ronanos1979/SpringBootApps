@@ -6,6 +6,8 @@ export default function AdminSettings() {
   const [settings, setSettings] = useState({
     externalApiDelayMs: 50,
     externalApiBatchSize: 10,
+    gameOptionCount: 4,
+    gameQuestionCount: 10,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -33,6 +35,8 @@ export default function AdminSettings() {
     const payload = {
       externalApiDelayMs: Math.max(0, Number(settings.externalApiDelayMs) || 0),
       externalApiBatchSize: Math.max(1, Number(settings.externalApiBatchSize) || 1),
+      gameOptionCount: Math.max(2, Number(settings.gameOptionCount) || 2),
+      gameQuestionCount: Math.max(1, Number(settings.gameQuestionCount) || 1),
     };
 
     try {
@@ -89,6 +93,38 @@ export default function AdminSettings() {
                   required
                 />
                 <div className="form-text">Pause duration after each batch.</div>
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="gameOptionCount" className="form-label">
+                  Game option count
+                </label>
+                <input
+                  id="gameOptionCount"
+                  type="number"
+                  min="2"
+                  className="form-control"
+                  value={settings.gameOptionCount}
+                  onChange={e => updateField('gameOptionCount', e.target.value)}
+                  required
+                />
+                <div className="form-text">Number of definition options shown for each game question.</div>
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="gameQuestionCount" className="form-label">
+                  Game question count
+                </label>
+                <input
+                  id="gameQuestionCount"
+                  type="number"
+                  min="1"
+                  className="form-control"
+                  value={settings.gameQuestionCount}
+                  onChange={e => updateField('gameQuestionCount', e.target.value)}
+                  required
+                />
+                <div className="form-text">Number of questions in each game session.</div>
               </div>
 
               <button type="submit" className="btn btn-success" disabled={saving}>

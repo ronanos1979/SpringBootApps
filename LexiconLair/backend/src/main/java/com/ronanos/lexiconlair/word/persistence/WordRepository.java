@@ -17,4 +17,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     @Query("SELECT w FROM word w WHERE NOT EXISTS (SELECT d FROM Definition d WHERE d.word = w) ORDER BY w.text")
     List<Word> findWithoutDefinitions();
+
+    @Query("SELECT DISTINCT d.word FROM Definition d")
+    List<Word> findWordsWithDefinitions();
 }

@@ -13,6 +13,7 @@ import {
   getAdminSettings,
   getBook,
   getCurrentUser,
+  getGameQuestion,
   getUser,
   getWord,
   listWordsWithoutDefinitions,
@@ -112,15 +113,17 @@ describe('api client', () => {
 
     await getAuthor(1);
     await getAdminSettings();
+    await getGameQuestion('easy');
     await getBook(2);
     await getWord(3);
     await getUser(4);
 
     expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/authors/1', expect.objectContaining({ credentials: 'include' }));
     expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/admin/settings', expect.objectContaining({ credentials: 'include' }));
-    expect(fetchMock).toHaveBeenNthCalledWith(3, '/api/books/2', expect.objectContaining({ credentials: 'include' }));
-    expect(fetchMock).toHaveBeenNthCalledWith(4, '/api/words/3', expect.objectContaining({ credentials: 'include' }));
-    expect(fetchMock).toHaveBeenNthCalledWith(5, '/api/users/4', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(3, '/api/game/question?mode=easy', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(4, '/api/books/2', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(5, '/api/words/3', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(6, '/api/users/4', expect.objectContaining({ credentials: 'include' }));
   });
 
   it('serializes create and update payloads as JSON', async () => {
@@ -130,7 +133,12 @@ describe('api client', () => {
     await createBook({ title: 'Kindred', authorId: 7 });
     await createWord({ text: 'lexicon', language: 'English' });
     await createUser({ username: 'reader', password: 'secret', email: 'reader@example.com' });
-    await updateAdminSettings({ externalApiDelayMs: 100, externalApiBatchSize: 5 });
+    await updateAdminSettings({
+      externalApiDelayMs: 100,
+      externalApiBatchSize: 5,
+      gameOptionCount: 6,
+      gameQuestionCount: 12,
+    });
     await updateAuthor(1, { firstName: 'Octavia', lastName: 'Butler' });
     await updateBook(1, { title: 'Parable', authorId: 7 });
     await updateWord(1, { text: 'parable', language: 'English' });
@@ -155,7 +163,12 @@ describe('api client', () => {
     }));
     expect(fetchMock).toHaveBeenNthCalledWith(5, '/api/admin/settings', expect.objectContaining({
       method: 'PUT',
-      body: JSON.stringify({ externalApiDelayMs: 100, externalApiBatchSize: 5 }),
+      body: JSON.stringify({
+        externalApiDelayMs: 100,
+        externalApiBatchSize: 5,
+        gameOptionCount: 6,
+        gameQuestionCount: 12,
+      }),
     }));
     expect(fetchMock).toHaveBeenNthCalledWith(6, '/api/authors/1', expect.objectContaining({
       method: 'PUT',

@@ -20,6 +20,7 @@ export default function Navbar() {
           <li className="nav-item"><Link className="nav-link" to="/">Home</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/books">Books</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/words/search">Word Search</Link></li>
+          <li className="nav-item"><Link className="nav-link" to="/game">Game</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/authors">Authors</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/words">All Words</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/definitions">Definitions</Link></li>

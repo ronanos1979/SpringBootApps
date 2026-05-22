@@ -42,14 +42,19 @@ class AdminSettingsControllerMockMvcTest {
         mockMvc.perform(get("/api/admin/settings").with(user("ronan").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.externalApiDelayMs").value(50))
-                .andExpect(jsonPath("$.externalApiBatchSize").value(10));
+                .andExpect(jsonPath("$.externalApiBatchSize").value(10))
+                .andExpect(jsonPath("$.gameOptionCount").value(4))
+                .andExpect(jsonPath("$.gameQuestionCount").value(10));
     }
 
     @Test
     void updateSettingsReturnsSavedSettings() throws Exception {
         when(adminSettingsService.updateSettings(argThat((AdminSettingsRequest request) ->
-                request.externalApiDelayMs() == 100 && request.externalApiBatchSize() == 5)))
-                .thenReturn(new AdminSettings(1L, 100, 5));
+                        request.externalApiDelayMs() == 100 &&
+                        request.externalApiBatchSize() == 5 &&
+                        request.gameOptionCount() == 6 &&
+                        request.gameQuestionCount() == 12)))
+                .thenReturn(new AdminSettings(1L, 100, 5, 6, 12));
 
         mockMvc.perform(put("/api/admin/settings")
                         .with(user("ronan").roles("USER"))
@@ -57,12 +62,16 @@ class AdminSettingsControllerMockMvcTest {
                         .content("""
                                 {
                                   "externalApiDelayMs": 100,
-                                  "externalApiBatchSize": 5
+                                  "externalApiBatchSize": 5,
+                                  "gameOptionCount": 6,
+                                  "gameQuestionCount": 12
                                 }
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.externalApiDelayMs").value(100))
-                .andExpect(jsonPath("$.externalApiBatchSize").value(5));
+                .andExpect(jsonPath("$.externalApiBatchSize").value(5))
+                .andExpect(jsonPath("$.gameOptionCount").value(6))
+                .andExpect(jsonPath("$.gameQuestionCount").value(12));
     }
 
     @Test
@@ -73,7 +82,9 @@ class AdminSettingsControllerMockMvcTest {
                         .content("""
                                 {
                                   "externalApiDelayMs": 0,
-                                  "externalApiBatchSize": 0
+                                  "externalApiBatchSize": 0,
+                                  "gameOptionCount": 4,
+                                  "gameQuestionCount": 10
                                 }
                                 """))
                 .andExpect(status().isBadRequest());
