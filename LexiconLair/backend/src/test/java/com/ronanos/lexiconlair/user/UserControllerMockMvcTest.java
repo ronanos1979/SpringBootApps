@@ -58,12 +58,13 @@ class UserControllerMockMvcTest {
         user.setId(1L);
         when(userRepository.findAll()).thenReturn(List.of(user));
 
-        mockMvc.perform(get("/api/users").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/users").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].username").value("ronan"))
                 .andExpect(jsonPath("$[0].email").value("ronan@example.com"))
+                .andExpect(jsonPath("$[0].role").value("USER"))
                 .andExpect(jsonPath("$[0].password").doesNotExist());
     }
 
@@ -73,7 +74,7 @@ class UserControllerMockMvcTest {
         existing.setId(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
 
-        mockMvc.perform(get("/api/users/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/users/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.username").value("ronan"))
@@ -87,12 +88,13 @@ class UserControllerMockMvcTest {
         currentUser.setId(7L);
         User saved = new User("newuser", "encoded", "new@example.com", "New", "User");
         saved.setId(2L);
+        saved.setRole("ADMIN");
         when(passwordEncoder.encode("password123")).thenReturn("encoded");
         when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser));
         when(userRepository.save(any(User.class))).thenReturn(saved);
 
         mockMvc.perform(post("/api/users")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -100,23 +102,27 @@ class UserControllerMockMvcTest {
                                   "password": "password123",
                                   "email": "new@example.com",
                                   "firstName": "New",
-                                  "lastName": "User"
+                                  "lastName": "User",
+                                  "role": "ADMIN"
                                 }
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value("newuser"))
+                .andExpect(jsonPath("$.role").value("ADMIN"))
                 .andExpect(jsonPath("$.password").doesNotExist());
 
         verify(userRepository).save(argThat(user ->
-                user.getUsername().equals("newuser")
+                user.getUsername() != null
+                        && user.getUsername().equals("newuser")
                         && user.getPassword().equals("encoded")
-                        && user.getCreatedBy().equals(7L)));
+                        && user.getCreatedBy().equals(7L)
+                        && user.getRole().equals("ADMIN")));
     }
 
     @Test
     void createUserRejectsBlankPassword() throws Exception {
         mockMvc.perform(post("/api/users")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -124,7 +130,8 @@ class UserControllerMockMvcTest {
                                   "password": "",
                                   "email": "new@example.com",
                                   "firstName": "New",
-                                  "lastName": "User"
+                                  "lastName": "User",
+                                  "role": "USER"
                                 }
                 """))
                 .andExpect(status().isBadRequest())
@@ -145,7 +152,7 @@ class UserControllerMockMvcTest {
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(put("/api/users/1")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -153,15 +160,18 @@ class UserControllerMockMvcTest {
                                   "password": "",
                                   "email": "ronan@example.com",
                                   "firstName": "Updated",
-                                  "lastName": "User"
+                                  "lastName": "User",
+                                  "role": "ADMIN"
                                 }
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Updated"))
+                .andExpect(jsonPath("$.role").value("ADMIN"))
                 .andExpect(jsonPath("$.password").doesNotExist());
 
         verify(userRepository).save(argThat(user ->
                 user.getPassword().equals("old-encoded")
+                        && user.getRole().equals("ADMIN")
                         && user.getUpdatedBy().equals(1L)));
     }
 
@@ -170,7 +180,7 @@ class UserControllerMockMvcTest {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/api/users/99")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -178,7 +188,8 @@ class UserControllerMockMvcTest {
                                   "password": "",
                                   "email": "missing@example.com",
                                   "firstName": "Missing",
-                                  "lastName": "User"
+                                  "lastName": "User",
+                                  "role": "USER"
                                 }
                 """))
                 .andExpect(status().isNotFound())
@@ -190,7 +201,7 @@ class UserControllerMockMvcTest {
 
     @Test
     void deleteUserReturns204() throws Exception {
-        mockMvc.perform(delete("/api/users/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(delete("/api/users/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNoContent());
 
         verify(userRepository).deleteById(1L);

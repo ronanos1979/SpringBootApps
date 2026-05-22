@@ -63,6 +63,7 @@ public class UserController {
                 request.email(),
                 request.firstName(),
                 request.lastName());
+        user.setRole(normalizeRole(request.role()));
         user.setCreatedAt(LocalDateTime.now());
         user.setCreatedBy(getCurrentUserId());
         User saved = userRepository.save(user);
@@ -82,6 +83,7 @@ public class UserController {
                 request.firstName(),
                 request.lastName());
         user.setId(id);
+        user.setRole(normalizeRole(request.role()));
         if (request.password() == null || request.password().isBlank()) {
             user.setPassword(existingUser.getPassword());
         } else {
@@ -112,6 +114,10 @@ public class UserController {
         return userRepository.findByUsername(authentication.getName())
                 .map(User::getId)
                 .orElse(null);
+    }
+
+    private String normalizeRole(String role) {
+        return role == null || role.isBlank() ? "USER" : role;
     }
 
 }

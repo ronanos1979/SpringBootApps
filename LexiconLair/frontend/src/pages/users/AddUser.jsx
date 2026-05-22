@@ -14,6 +14,7 @@ export default function AddUser() {
     email: '',
     firstName: '',
     lastName: '',
+    role: 'USER',
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(Boolean(id));
@@ -32,6 +33,7 @@ export default function AddUser() {
           email: user.email ?? '',
           firstName: user.firstName ?? '',
           lastName: user.lastName ?? '',
+          role: user.role ?? 'USER',
         });
       })
       .catch(err => setSubmitError(err.message || 'Unable to load user.'))
@@ -140,6 +142,20 @@ export default function AddUser() {
               value={form.lastName}
               onChange={handleChange}
             />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="role" className="form-label">Role:</label>
+            <select
+              id="role"
+              name="role"
+              className="form-select"
+              value={form.role}
+              onChange={handleChange}
+              required
+            >
+              <option value="USER">Regular User</option>
+              <option value="ADMIN">Admin</option>
+            </select>
           </div>
           <button type="submit" className="btn btn-success" disabled={loading}>Submit</button>
         </form>

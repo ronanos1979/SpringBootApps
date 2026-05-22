@@ -63,7 +63,7 @@ class AuthorControllerMockMvcTest {
     void listAuthorsReturnsJsonForAuthenticatedUser() throws Exception {
         when(authorRepository.findAll()).thenReturn(List.of(new Author("Jane", "Austen")));
 
-        mockMvc.perform(get("/api/authors").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/authors").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].firstName").value("Jane"))
@@ -74,7 +74,7 @@ class AuthorControllerMockMvcTest {
     void getAuthorReturns404WhenMissing() throws Exception {
         when(authorRepository.findById(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/authors/99").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/authors/99").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
@@ -86,7 +86,7 @@ class AuthorControllerMockMvcTest {
     void getAuthorReturnsAuthorResponseDto() throws Exception {
         when(authorRepository.findById(1L)).thenReturn(Optional.of(new Author("Octavia", "Butler")));
 
-        mockMvc.perform(get("/api/authors/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/authors/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Octavia"))
                 .andExpect(jsonPath("$.lastName").value("Butler"))
@@ -98,14 +98,14 @@ class AuthorControllerMockMvcTest {
         when(authorRepository.searchByDisplayName("austen"))
                 .thenReturn(List.of(new Author("Jane", "Austen")));
 
-        mockMvc.perform(get("/api/authors/search?q=austen").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/authors/search?q=austen").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].displayName").value("Jane Austen"));
     }
 
     @Test
     void searchAuthorsReturnsEmptyForBlankQuery() throws Exception {
-        mockMvc.perform(get("/api/authors/search?q=").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/authors/search?q=").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
@@ -115,7 +115,7 @@ class AuthorControllerMockMvcTest {
         when(authorRepository.save(any(Author.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(post("/api/authors")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -136,7 +136,7 @@ class AuthorControllerMockMvcTest {
         when(authorRepository.save(any(Author.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(post("/api/authors")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -158,7 +158,7 @@ class AuthorControllerMockMvcTest {
                 .thenReturn(Optional.of(new Author("George", "Orwell")));
 
         mockMvc.perform(post("/api/authors")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -173,7 +173,7 @@ class AuthorControllerMockMvcTest {
     @Test
     void createAuthorRejectsInvalidPayload() throws Exception {
         mockMvc.perform(post("/api/authors")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -194,7 +194,7 @@ class AuthorControllerMockMvcTest {
         when(authorRepository.save(any(Author.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(put("/api/authors/1")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -214,7 +214,7 @@ class AuthorControllerMockMvcTest {
         when(authorRepository.save(any(Author.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(put("/api/authors/1")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -232,7 +232,7 @@ class AuthorControllerMockMvcTest {
 
     @Test
     void deleteAuthorReturns204() throws Exception {
-        mockMvc.perform(delete("/api/authors/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(delete("/api/authors/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNoContent());
 
         verify(authorRepository).deleteById(1L);

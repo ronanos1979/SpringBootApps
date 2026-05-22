@@ -43,6 +43,7 @@ export default function ListUsers() {
                   <th>Email</th>
                   <th>First Name</th>
                   <th>Last Name</th>
+                  <th>Role</th>
                   <th>Created At</th>
                   <th>Created By</th>
                   <th>Updated At</th>
@@ -59,6 +60,11 @@ export default function ListUsers() {
                     <td>{user.email}</td>
                     <td>{user.firstName}</td>
                     <td>{user.lastName}</td>
+                    <td>
+                      <span className={`badge ${user.role === 'ADMIN' ? 'bg-danger' : 'bg-secondary'}`}>
+                        {user.role === 'ADMIN' ? 'Admin' : 'Regular User'}
+                      </span>
+                    </td>
                     <td>{user.createdAt}</td>
                     <td>{user.createdBy}</td>
                     <td>{user.updatedAt}</td>

@@ -63,7 +63,7 @@ class DefinitionControllerMockMvcTest {
         Definition definition = definition("lexicon");
         when(definitionRepository.findAll()).thenReturn(List.of(definition));
 
-        mockMvc.perform(get("/api/definitions").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/definitions").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].definitionText").value("A vocabulary."))
                 .andExpect(jsonPath("$[0].word.text").value("lexicon"))
@@ -74,7 +74,7 @@ class DefinitionControllerMockMvcTest {
     void getDefinitionReturnsDefinitionResponseDto() throws Exception {
         when(definitionRepository.findById(1L)).thenReturn(Optional.of(definition("lexicon")));
 
-        mockMvc.perform(get("/api/definitions/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/definitions/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.definitionText").value("A vocabulary."))
                 .andExpect(jsonPath("$.partOfSpeech").value("noun"))
@@ -87,7 +87,7 @@ class DefinitionControllerMockMvcTest {
         when(definitionRepository.save(any(Definition.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(post("/api/definitions")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -116,7 +116,7 @@ class DefinitionControllerMockMvcTest {
         when(definitionRepository.save(any(Definition.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(post("/api/definitions")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -139,7 +139,7 @@ class DefinitionControllerMockMvcTest {
         when(wordRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/api/definitions")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -162,7 +162,7 @@ class DefinitionControllerMockMvcTest {
         when(definitionRepository.save(any(Definition.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(put("/api/definitions/1")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -185,7 +185,7 @@ class DefinitionControllerMockMvcTest {
         when(definitionRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/api/definitions/99")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -200,7 +200,7 @@ class DefinitionControllerMockMvcTest {
 
     @Test
     void deleteDefinitionReturns204() throws Exception {
-        mockMvc.perform(delete("/api/definitions/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(delete("/api/definitions/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNoContent());
 
         verify(definitionRepository).deleteById(1L);

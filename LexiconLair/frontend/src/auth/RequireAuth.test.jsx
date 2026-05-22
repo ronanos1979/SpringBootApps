@@ -9,7 +9,9 @@ function renderGuard(value, initialEntries = ['/words']) {
       <AuthContext.Provider value={value}>
         <Routes>
           <Route path="/login" element={<div>Login route</div>} />
+          <Route path="/" element={<div>Home route</div>} />
           <Route path="/words" element={<RequireAuth><div>Protected route</div></RequireAuth>} />
+          <Route path="/admin" element={<RequireAuth role="ADMIN"><div>Admin route</div></RequireAuth>} />
         </Routes>
       </AuthContext.Provider>
     </MemoryRouter>,
@@ -33,5 +35,11 @@ describe('RequireAuth', () => {
     renderGuard({ user: { username: 'admin' }, loading: false });
 
     expect(screen.getByText('Protected route')).toBeInTheDocument();
+  });
+
+  it('redirects regular users away from admin routes', () => {
+    renderGuard({ user: { username: 'reader', role: 'USER' }, loading: false }, ['/admin']);
+
+    expect(screen.getByText('Home route')).toBeInTheDocument();
   });
 });

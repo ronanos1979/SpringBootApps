@@ -25,6 +25,7 @@ describe('AddUser', () => {
     await userEvent.type(screen.getByLabelText(/email/i), 'reader@example.com');
     await userEvent.type(screen.getByLabelText(/first name/i), 'Read');
     await userEvent.type(screen.getByLabelText(/last name/i), 'Er');
+    await userEvent.selectOptions(screen.getByLabelText(/role/i), 'ADMIN');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     await waitFor(() => expect(screen.getByText('/users route')).toBeInTheDocument());
@@ -36,6 +37,7 @@ describe('AddUser', () => {
         email: 'reader@example.com',
         firstName: 'Read',
         lastName: 'Er',
+        role: 'ADMIN',
       }),
     }));
   });
@@ -48,6 +50,7 @@ describe('AddUser', () => {
         email: 'reader@example.com',
         firstName: 'Read',
         lastName: 'Er',
+        role: 'USER',
       }),
       jsonResponse({ id: 3, username: 'reader2' }),
     );
@@ -75,6 +78,7 @@ describe('AddUser', () => {
         email: 'reader@example.com',
         firstName: 'Read',
         lastName: 'Er',
+        role: 'USER',
       }),
     }));
   });

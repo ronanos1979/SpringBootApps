@@ -47,6 +47,11 @@ public class User {
     @Column(nullable = false)
     private String lastName;
 
+    @NotBlank
+    @Size(max = 20)
+    @Column(nullable = false)
+    private String role = "USER";
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -62,6 +67,7 @@ public class User {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.role = "USER";
     }
 
     public Long getId() {
@@ -112,6 +118,14 @@ public class User {
         this.lastName = lastName;
     }
 
+    public String getRole() {
+        return role == null || role.isBlank() ? "USER" : role;
+    }
+
+    public void setRole(String role) {
+        this.role = role == null || role.isBlank() ? "USER" : role;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -153,6 +167,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", role='" + role + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", createdBy=" + createdBy +

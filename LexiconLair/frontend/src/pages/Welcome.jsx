@@ -7,6 +7,7 @@ import { listBooks } from '../api/client';
 export default function Welcome() {
   const { user } = useAuth();
   const name = user?.firstName || user?.username || 'Guest';
+  const isAdmin = user?.role === 'ADMIN';
 
   const [myBooks, setMyBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +33,7 @@ export default function Welcome() {
           <h2 className="h4 mb-0">Your Books</h2>
           <div className="d-flex gap-2">
             <Link to="/books/add" className="btn btn-success btn-sm">+ Add Book</Link>
-            <Link to="/books" className="btn btn-outline-secondary btn-sm">Browse All</Link>
+            {isAdmin && <Link to="/books" className="btn btn-outline-secondary btn-sm">Browse All</Link>}
           </div>
         </div>
 
@@ -56,11 +57,13 @@ export default function Welcome() {
                     <h5 className="card-title mb-1">{book.title}</h5>
                     <p className="card-text text-muted small">{book.author?.displayName}</p>
                   </div>
-                  <div className="card-footer bg-transparent border-top-0">
-                    <Link to={`/books/${book.id}`} className="btn btn-primary btn-sm w-100">
-                      View Words
-                    </Link>
-                  </div>
+                  {isAdmin && (
+                    <div className="card-footer bg-transparent border-top-0">
+                      <Link to={`/books/${book.id}`} className="btn btn-primary btn-sm w-100">
+                        View Words
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -72,10 +75,16 @@ export default function Welcome() {
         <div className="mt-4">
           <h2 className="h5 mb-3">Quick Actions</h2>
           <div className="d-flex gap-2 flex-wrap">
-            <Link to="/words/search" className="btn btn-outline-primary">Word Search</Link>
-            <Link to="/authors" className="btn btn-outline-secondary">Authors</Link>
-            <Link to="/definitions" className="btn btn-outline-secondary">Definitions</Link>
-            <Link to="/users" className="btn btn-outline-secondary">Users</Link>
+            <Link to="/game" className="btn btn-outline-primary">Game</Link>
+            <Link to="/books/add" className="btn btn-outline-success">Add Book</Link>
+            {isAdmin && (
+              <>
+                <Link to="/words/search" className="btn btn-outline-primary">Word Search</Link>
+                <Link to="/authors" className="btn btn-outline-secondary">Authors</Link>
+                <Link to="/definitions" className="btn btn-outline-secondary">Definitions</Link>
+                <Link to="/users" className="btn btn-outline-secondary">Users</Link>
+              </>
+            )}
           </div>
         </div>
 

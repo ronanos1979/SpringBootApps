@@ -11,12 +11,19 @@ afterEach(() => {
 
 const shelley = { id: 7, firstName: 'Mary', lastName: 'Shelley', displayName: 'Mary Shelley' };
 
-function renderPage(extraRoutes = null) {
+async function selectAuthor(name = 'Mary') {
+  await userEvent.type(screen.getByLabelText(/author/i), name);
+  const option = await screen.findByText('Mary Shelley');
+  await userEvent.click(option.closest('li'));
+}
+
+function renderPage(extraRoutes = null, user = { username: 'admin', role: 'ADMIN' }) {
   return render(
     <MemoryRouter initialEntries={['/books/add']}>
-      <AuthContext.Provider value={{ user: { username: 'admin' }, loading: false, logout: vi.fn() }}>
+      <AuthContext.Provider value={{ user, loading: false, logout: vi.fn() }}>
         <Routes>
           <Route path="/books/add" element={<AddBook />} />
+          <Route path="/" element={<div>Home route</div>} />
           <Route path="/books" element={<div>Books route</div>} />
           <Route path="/books/:id" element={<div>Book detail route</div>} />
           {extraRoutes}
@@ -30,13 +37,15 @@ describe('AddBook', () => {
   it('loads authors and posts a new book', async () => {
     const fetchMock = mockFetchSequence(
       jsonResponse([shelley]),
+      jsonResponse([shelley]),
       jsonResponse({ id: 2, title: 'Frankenstein' }, { status: 201 }),
     );
 
     renderPage();
 
-    await userEvent.type(await screen.findByLabelText(/title/i), 'Frankenstein');
-    await userEvent.selectOptions(screen.getByLabelText(/author/i), '7');
+    await screen.findByLabelText(/title/i);
+    await selectAuthor();
+    await userEvent.type(screen.getByLabelText(/title/i), 'Frankenstein');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     await waitFor(() => expect(screen.getByText('Books route')).toBeInTheDocument());
@@ -49,6 +58,42 @@ describe('AddBook', () => {
     }));
   });
 
+  it('creates a missing author inline and selects them for the book', async () => {
+    const octavia = { id: 9, firstName: 'Octavia', lastName: 'Butler', displayName: 'Octavia Butler' };
+    const fetchMock = mockFetchSequence(
+      jsonResponse([]),
+      jsonResponse([]),
+      jsonResponse(octavia, { status: 201 }),
+      jsonResponse({ id: 3, title: 'Kindred', author: octavia }, { status: 201 }),
+    );
+
+    renderPage();
+
+    await screen.findByLabelText(/title/i);
+    await userEvent.type(screen.getByLabelText(/author/i), 'Octavia Butler');
+    await userEvent.click(await screen.findByRole('button', { name: /create author "octavia butler"/i }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      '/api/authors/search?q=Octavia%20Butler',
+      expect.anything(),
+    ));
+    await userEvent.click(screen.getByRole('button', { name: /^create$/i }));
+
+    expect(await screen.findByText(/selected author: octavia butler/i)).toBeInTheDocument();
+
+    await userEvent.type(screen.getByLabelText(/title/i), 'Kindred');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    await waitFor(() => expect(screen.getByText('Books route')).toBeInTheDocument());
+    expect(fetchMock).toHaveBeenCalledWith('/api/authors', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ firstName: 'Octavia', lastName: 'Butler' }),
+    }));
+    expect(fetchMock).toHaveBeenCalledWith('/api/books', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ title: 'Kindred', authorId: 9 }),
+    }));
+  });
+
   it('loads an existing book and sends an update', async () => {
     const fetchMock = mockFetchSequence(
       jsonResponse([shelley]),
@@ -58,7 +103,7 @@ describe('AddBook', () => {
 
     render(
       <MemoryRouter initialEntries={['/books/update/2']}>
-        <AuthContext.Provider value={{ user: { username: 'admin' }, loading: false, logout: vi.fn() }}>
+        <AuthContext.Provider value={{ user: { username: 'admin', role: 'ADMIN' }, loading: false, logout: vi.fn() }}>
           <Routes>
             <Route path="/books/update/:id" element={<AddBook />} />
             <Route path="/books" element={<div>Books route</div>} />
@@ -88,6 +133,7 @@ describe('AddBook', () => {
   it('shows backend save errors', async () => {
     mockFetchSequence(
       jsonResponse([shelley]),
+      jsonResponse([shelley]),
       jsonResponse({ message: 'Invalid author id' }, {
         ok: false,
         status: 400,
@@ -97,8 +143,9 @@ describe('AddBook', () => {
 
     renderPage();
 
-    await userEvent.type(await screen.findByLabelText(/title/i), 'Frankenstein');
-    await userEvent.selectOptions(screen.getByLabelText(/author/i), '7');
+    await screen.findByLabelText(/title/i);
+    await selectAuthor();
+    await userEvent.type(screen.getByLabelText(/title/i), 'Frankenstein');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     expect(await screen.findByText('Invalid author id')).toBeInTheDocument();
@@ -107,13 +154,15 @@ describe('AddBook', () => {
   it('shows 409 error when book title already exists', async () => {
     mockFetchSequence(
       jsonResponse([shelley]),
+      jsonResponse([shelley]),
       jsonResponse({ message: 'A book with this title already exists' }, { ok: false, status: 409 }),
     );
 
     renderPage();
 
-    await userEvent.type(await screen.findByLabelText(/title/i), 'Frankenstein');
-    await userEvent.selectOptions(screen.getByLabelText(/author/i), '7');
+    await screen.findByLabelText(/title/i);
+    await selectAuthor();
+    await userEvent.type(screen.getByLabelText(/title/i), 'Frankenstein');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     expect(await screen.findByText('A book with this title already exists')).toBeInTheDocument();
@@ -159,6 +208,23 @@ describe('AddBook', () => {
     }));
   });
 
+  it('sends regular users home after saving an existing book to their collection', async () => {
+    const frankenstein = { id: 2, title: 'Frankenstein', author: shelley };
+    mockFetchSequence(
+      jsonResponse([shelley]),
+      jsonResponse([frankenstein]),
+      jsonResponse(frankenstein),
+    );
+
+    renderPage(null, { username: 'reader', role: 'USER' });
+    await screen.findByLabelText(/title/i);
+
+    await userEvent.type(screen.getByLabelText(/title/i), 'Fr');
+    await userEvent.click((await screen.findByText('Frankenstein')).closest('li'));
+
+    await waitFor(() => expect(screen.getByText('Home route')).toBeInTheDocument());
+  });
+
   it('shows no suggestions hint when typing yields no matches', async () => {
     mockFetchSequence(
       jsonResponse([shelley]),   // listAuthors
@@ -183,7 +249,7 @@ describe('AddBook', () => {
 
     render(
       <MemoryRouter initialEntries={['/books/update/2']}>
-        <AuthContext.Provider value={{ user: { username: 'admin' }, loading: false, logout: vi.fn() }}>
+        <AuthContext.Provider value={{ user: { username: 'admin', role: 'ADMIN' }, loading: false, logout: vi.fn() }}>
           <Routes>
             <Route path="/books/update/:id" element={<AddBook />} />
           </Routes>

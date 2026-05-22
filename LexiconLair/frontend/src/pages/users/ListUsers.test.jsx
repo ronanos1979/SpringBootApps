@@ -17,6 +17,7 @@ describe('ListUsers', () => {
         email: 'reader@example.com',
         firstName: 'Read',
         lastName: 'Er',
+        role: 'ADMIN',
       }]),
       emptyResponse({ status: 204 }),
     );
@@ -24,6 +25,7 @@ describe('ListUsers', () => {
     renderWithAuth(<ListUsers />, { path: '/users' });
 
     expect(await screen.findByText('reader')).toBeInTheDocument();
+    expect(screen.getAllByText('Admin').length).toBeGreaterThanOrEqual(1);
     await userEvent.click(screen.getByRole('button', { name: /delete/i }));
 
     await waitFor(() => expect(screen.queryByText('reader')).not.toBeInTheDocument());

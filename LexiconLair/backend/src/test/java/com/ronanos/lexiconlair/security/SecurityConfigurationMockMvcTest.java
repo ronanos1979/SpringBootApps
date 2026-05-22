@@ -35,6 +35,10 @@ class SecurityConfigurationMockMvcTest {
             return new InMemoryUserDetailsManager(User.builder()
                     .username("admin")
                     .password(passwordEncoder.encode("change-me"))
+                    .roles("ADMIN")
+                    .build(), User.builder()
+                    .username("reader")
+                    .password(passwordEncoder.encode("change-me"))
                     .roles("USER")
                     .build());
         }
@@ -50,6 +54,16 @@ class SecurityConfigurationMockMvcTest {
         @GetMapping(path = "/api/protected", produces = MediaType.TEXT_PLAIN_VALUE)
         String protectedApi() {
             return "protected";
+        }
+
+        @GetMapping(path = "/api/users", produces = MediaType.TEXT_PLAIN_VALUE)
+        String usersApi() {
+            return "users";
+        }
+
+        @GetMapping(path = "/api/game/question", produces = MediaType.TEXT_PLAIN_VALUE)
+        String gameApi() {
+            return "game";
         }
     }
 
@@ -73,6 +87,18 @@ class SecurityConfigurationMockMvcTest {
                         .param("password", "change-me"))
                 .andExpect(status().isOk())
                 .andExpect(request().sessionAttribute("SPRING_SECURITY_CONTEXT", notNullValue()));
+    }
+
+    @Test
+    void regularUsersCannotAccessAdminCrudApis() throws Exception {
+        mockMvc.perform(get("/api/users").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("reader").roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void regularUsersAreAuthorizedForGameApis() throws Exception {
+        mockMvc.perform(get("/api/game/question").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("reader").roles("USER")))
+                .andExpect(status().isNotFound());
     }
 
     @Test

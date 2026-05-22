@@ -33,27 +33,27 @@ function App() {
             )}
           />
 
-          <Route path="/authors" element={<RequireAuth><ListAuthors /></RequireAuth>} />
-          <Route path="/authors/add" element={<RequireAuth><AddAuthor /></RequireAuth>} />
-          <Route path="/authors/update/:id" element={<RequireAuth><AddAuthor /></RequireAuth>} />
+          <Route path="/authors" element={<RequireAuth role="ADMIN"><ListAuthors /></RequireAuth>} />
+          <Route path="/authors/add" element={<RequireAuth role="ADMIN"><AddAuthor /></RequireAuth>} />
+          <Route path="/authors/update/:id" element={<RequireAuth role="ADMIN"><AddAuthor /></RequireAuth>} />
 
-          <Route path="/books" element={<RequireAuth><ListBooks /></RequireAuth>} />
+          <Route path="/books" element={<RequireAuth role="ADMIN"><ListBooks /></RequireAuth>} />
           <Route path="/books/add" element={<RequireAuth><AddBook /></RequireAuth>} />
-          <Route path="/books/update/:id" element={<RequireAuth><AddBook /></RequireAuth>} />
-          <Route path="/books/:id" element={<RequireAuth><BookDetail /></RequireAuth>} />
+          <Route path="/books/update/:id" element={<RequireAuth role="ADMIN"><AddBook /></RequireAuth>} />
+          <Route path="/books/:id" element={<RequireAuth role="ADMIN"><BookDetail /></RequireAuth>} />
 
-          <Route path="/words" element={<RequireAuth><ListWords /></RequireAuth>} />
-          <Route path="/words/add" element={<RequireAuth><AddWord /></RequireAuth>} />
-          <Route path="/words/update/:id" element={<RequireAuth><AddWord /></RequireAuth>} />
-          <Route path="/words/search" element={<RequireAuth><WordSearch /></RequireAuth>} />
+          <Route path="/words" element={<RequireAuth role="ADMIN"><ListWords /></RequireAuth>} />
+          <Route path="/words/add" element={<RequireAuth role="ADMIN"><AddWord /></RequireAuth>} />
+          <Route path="/words/update/:id" element={<RequireAuth role="ADMIN"><AddWord /></RequireAuth>} />
+          <Route path="/words/search" element={<RequireAuth role="ADMIN"><WordSearch /></RequireAuth>} />
 
-          <Route path="/users" element={<RequireAuth><ListUsers /></RequireAuth>} />
-          <Route path="/users/add" element={<RequireAuth><AddUser /></RequireAuth>} />
-          <Route path="/users/update/:id" element={<RequireAuth><AddUser /></RequireAuth>} />
+          <Route path="/users" element={<RequireAuth role="ADMIN"><ListUsers /></RequireAuth>} />
+          <Route path="/users/add" element={<RequireAuth role="ADMIN"><AddUser /></RequireAuth>} />
+          <Route path="/users/update/:id" element={<RequireAuth role="ADMIN"><AddUser /></RequireAuth>} />
 
-          <Route path="/definitions" element={<RequireAuth><ListDefinitions /></RequireAuth>} />
+          <Route path="/definitions" element={<RequireAuth role="ADMIN"><ListDefinitions /></RequireAuth>} />
 
-          <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
+          <Route path="/admin/settings" element={<RequireAuth role="ADMIN"><AdminSettings /></RequireAuth>} />
           <Route path="/game" element={<RequireAuth><Game /></RequireAuth>} />
 
           {/* Catch-all redirects unknown paths to home */}

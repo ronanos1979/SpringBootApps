@@ -10,7 +10,7 @@ describe('Navbar', () => {
 
     render(
       <MemoryRouter initialEntries={['/']}>
-        <AuthContext.Provider value={{ user: { username: 'admin' }, loading: false, logout }}>
+        <AuthContext.Provider value={{ user: { username: 'admin', role: 'ADMIN' }, loading: false, logout }}>
           <Routes>
             <Route path="/" element={<Navbar />} />
             <Route path="/login" element={<div>Login route</div>} />
@@ -23,5 +23,22 @@ describe('Navbar', () => {
 
     await waitFor(() => expect(screen.getByText('Login route')).toBeInTheDocument());
     expect(logout).toHaveBeenCalled();
+  });
+
+  it('hides admin navigation for regular users', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AuthContext.Provider value={{ user: { username: 'reader', role: 'USER' }, loading: false, logout: vi.fn() }}>
+          <Navbar />
+        </AuthContext.Provider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /game/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /add book/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^admin$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^users$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^definitions$/i })).not.toBeInTheDocument();
   });
 });

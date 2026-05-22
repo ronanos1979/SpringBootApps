@@ -72,7 +72,7 @@ class WordControllerMockMvcTest {
     void listWordsReturnsJsonForAuthenticatedUser() throws Exception {
         when(wordRepository.findAll()).thenReturn(List.of(new Word("lexicon", "en")));
 
-        mockMvc.perform(get("/api/words").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/words").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].text").value("lexicon"))
                 .andExpect(jsonPath("$[0].language").value("en"));
@@ -82,7 +82,7 @@ class WordControllerMockMvcTest {
     void getWordReturnsWordResponseDto() throws Exception {
         when(wordRepository.findById(1L)).thenReturn(Optional.of(new Word("serendipity", "en")));
 
-        mockMvc.perform(get("/api/words/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/words/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value("serendipity"))
                 .andExpect(jsonPath("$.language").value("en"));
@@ -94,7 +94,7 @@ class WordControllerMockMvcTest {
                 .thenReturn(new Word("ephemeral", "en"));
 
         mockMvc.perform(post("/api/words")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -118,7 +118,7 @@ class WordControllerMockMvcTest {
         when(wordDefinitionService.saveWordWithDefinitions(any(Word.class), anyLong())).thenReturn(saved);
 
         mockMvc.perform(post("/api/words")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -137,7 +137,7 @@ class WordControllerMockMvcTest {
     @Test
     void createWordRejectsShortText() throws Exception {
         mockMvc.perform(post("/api/words")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -159,7 +159,7 @@ class WordControllerMockMvcTest {
         when(wordRepository.save(any(Word.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(put("/api/words/1")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -180,7 +180,7 @@ class WordControllerMockMvcTest {
         when(wordRepository.save(any(Word.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(put("/api/words/1")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -201,7 +201,7 @@ class WordControllerMockMvcTest {
         when(bookWordRepository.searchAll("eph")).thenReturn(List.of());
         when(wordRepository.searchByText("eph")).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/words/search?q=eph").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/words/search?q=eph").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
     }
@@ -215,7 +215,7 @@ class WordControllerMockMvcTest {
         when(wordRepository.searchByText("stoic")).thenReturn(List.of(stoic));
         when(definitionRepository.findByWord_Id(12L)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/words/search?q=stoic").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/words/search?q=stoic").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].bookWordId").doesNotExist())
                 .andExpect(jsonPath("$[0].bookId").doesNotExist())
@@ -229,7 +229,7 @@ class WordControllerMockMvcTest {
         ReflectionTestUtils.setField(rakish, "id", 14L);
         when(wordRepository.findWithoutDefinitions()).thenReturn(List.of(rakish));
 
-        mockMvc.perform(get("/api/words/without-definitions").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/words/without-definitions").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(14))
                 .andExpect(jsonPath("$[0].text").value("rakish"));
@@ -249,7 +249,7 @@ class WordControllerMockMvcTest {
         when(wordRepository.findById(14L)).thenReturn(Optional.of(rakish));
         when(wordDefinitionService.refreshDefinitions(rakish, 1L)).thenReturn(List.of(definition));
 
-        mockMvc.perform(post("/api/words/14/definitions/refresh").with(user("ronan").roles("USER")))
+        mockMvc.perform(post("/api/words/14/definitions/refresh").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.word.text").value("rakish"))
                 .andExpect(jsonPath("$.definitions[0].definitionText").value("Having a dashing appearance."));
@@ -269,7 +269,7 @@ class WordControllerMockMvcTest {
         when(wordRepository.findWithoutDefinitions()).thenReturn(List.of(rakish));
         when(wordDefinitionService.refreshDefinitions(rakish, 1L)).thenReturn(List.of(definition));
 
-        mockMvc.perform(post("/api/words/definitions/refresh-missing").with(user("ronan").roles("USER")))
+        mockMvc.perform(post("/api/words/definitions/refresh-missing").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].word.text").value("rakish"))
                 .andExpect(jsonPath("$[0].definitions[0].definitionText").value("Having a dashing appearance."));
@@ -279,14 +279,14 @@ class WordControllerMockMvcTest {
     void getWordReturns404WhenMissing() throws Exception {
         when(wordRepository.findById(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/words/99").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/words/99").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Word not found"));
     }
 
     @Test
     void deleteWordReturns204() throws Exception {
-        mockMvc.perform(delete("/api/words/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(delete("/api/words/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNoContent());
 
         verify(wordRepository).deleteById(1L);

@@ -61,6 +61,9 @@ public class BookController {
             result.sort(Comparator.comparing(Book::getTitle, String.CASE_INSENSITIVE_ORDER));
             return result.stream().map(BookResponse::from).toList();
         }
+        if (!currentUserHasRole("ROLE_ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin role required");
+        }
         return bookRepository.findAll().stream()
                 .map(BookResponse::from)
                 .toList();
@@ -157,5 +160,11 @@ public class BookController {
         return userRepository.findByUsername(authentication.getName())
                 .map(User::getId)
                 .orElse(null);
+    }
+
+    private boolean currentUserHasRole(String role) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> role.equals(authority.getAuthority()));
     }
 }

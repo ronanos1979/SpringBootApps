@@ -39,7 +39,7 @@ class AdminSettingsControllerMockMvcTest {
     void getSettingsReturnsCurrentSettings() throws Exception {
         when(adminSettingsService.getSettings()).thenReturn(new AdminSettings(1L, 50, 10));
 
-        mockMvc.perform(get("/api/admin/settings").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/admin/settings").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.externalApiDelayMs").value(50))
                 .andExpect(jsonPath("$.externalApiBatchSize").value(10))
@@ -57,7 +57,7 @@ class AdminSettingsControllerMockMvcTest {
                 .thenReturn(new AdminSettings(1L, 100, 5, 6, 12));
 
         mockMvc.perform(put("/api/admin/settings")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -77,7 +77,7 @@ class AdminSettingsControllerMockMvcTest {
     @Test
     void updateSettingsRejectsInvalidBatchSize() throws Exception {
         mockMvc.perform(put("/api/admin/settings")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {

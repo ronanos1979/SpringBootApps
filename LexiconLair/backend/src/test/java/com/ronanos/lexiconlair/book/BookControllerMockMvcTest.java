@@ -73,7 +73,7 @@ class BookControllerMockMvcTest {
         Author author = new Author("J.R.R.", "Tolkien");
         when(bookRepository.findAll()).thenReturn(List.of(new Book("The Hobbit", author)));
 
-        mockMvc.perform(get("/api/books").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/books").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("The Hobbit"))
                 .andExpect(jsonPath("$[0].author.displayName").value("J.R.R. Tolkien"));
@@ -106,19 +106,25 @@ class BookControllerMockMvcTest {
     }
 
     @Test
+    void regularUsersCannotListAllBooks() throws Exception {
+        mockMvc.perform(get("/api/books").with(user("ronan").roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void searchBooksReturnsMatchingResults() throws Exception {
         Author author = new Author("J.R.R.", "Tolkien");
         when(bookRepository.findTop10ByTitleContainingIgnoreCaseOrderByTitleAsc("hob"))
                 .thenReturn(List.of(new Book("The Hobbit", author)));
 
-        mockMvc.perform(get("/api/books/search?q=hob").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/books/search?q=hob").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("The Hobbit"));
     }
 
     @Test
     void searchBooksReturnsEmptyForBlankQuery() throws Exception {
-        mockMvc.perform(get("/api/books/search?q=").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/books/search?q=").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
@@ -128,7 +134,7 @@ class BookControllerMockMvcTest {
         Author author = new Author("Ursula", "Le Guin");
         when(bookRepository.findById(1L)).thenReturn(Optional.of(new Book("A Wizard of Earthsea", author)));
 
-        mockMvc.perform(get("/api/books/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/books/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("A Wizard of Earthsea"))
                 .andExpect(jsonPath("$.author.displayName").value("Ursula Le Guin"));
@@ -141,7 +147,7 @@ class BookControllerMockMvcTest {
         when(bookRepository.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(post("/api/books")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -163,7 +169,7 @@ class BookControllerMockMvcTest {
         when(bookRepository.findByTitleIgnoreCase("Emma")).thenReturn(Optional.of(new Book("Emma", author)));
 
         mockMvc.perform(post("/api/books")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -183,7 +189,7 @@ class BookControllerMockMvcTest {
         when(bookRepository.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(post("/api/books")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -207,7 +213,7 @@ class BookControllerMockMvcTest {
         when(bookRepository.findById(5L)).thenReturn(Optional.of(book));
         when(userBookRepository.existsByUserIdAndBookId(1L, 5L)).thenReturn(false);
 
-        mockMvc.perform(post("/api/books/5/save").with(user("ronan").roles("USER")))
+        mockMvc.perform(post("/api/books/5/save").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Emma"));
 
@@ -223,7 +229,7 @@ class BookControllerMockMvcTest {
         when(bookRepository.findById(5L)).thenReturn(Optional.of(book));
         when(userBookRepository.existsByUserIdAndBookId(1L, 5L)).thenReturn(true);
 
-        mockMvc.perform(post("/api/books/5/save").with(user("ronan").roles("USER")))
+        mockMvc.perform(post("/api/books/5/save").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk());
     }
 
@@ -231,7 +237,7 @@ class BookControllerMockMvcTest {
     void saveToCollectionReturns404WhenBookMissing() throws Exception {
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(post("/api/books/99/save").with(user("ronan").roles("USER")))
+        mockMvc.perform(post("/api/books/99/save").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
@@ -240,7 +246,7 @@ class BookControllerMockMvcTest {
         when(authorRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/api/books")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -260,7 +266,7 @@ class BookControllerMockMvcTest {
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/api/books/99")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -280,7 +286,7 @@ class BookControllerMockMvcTest {
         when(bookRepository.findByTitleIgnoreCase("Emma")).thenReturn(Optional.of(conflict));
 
         mockMvc.perform(put("/api/books/1")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -303,7 +309,7 @@ class BookControllerMockMvcTest {
         when(bookRepository.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(put("/api/books/1")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -322,7 +328,7 @@ class BookControllerMockMvcTest {
 
     @Test
     void deleteBookReturns204() throws Exception {
-        mockMvc.perform(delete("/api/books/1").with(user("ronan").roles("USER")))
+        mockMvc.perform(delete("/api/books/1").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNoContent());
 
         verify(bookRepository).deleteById(1L);

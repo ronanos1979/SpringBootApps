@@ -7,7 +7,7 @@ export function renderWithAuth(ui, options = {}) {
     path = '/',
     initialEntries = [path],
     routeAfterSubmit,
-    user = { username: 'admin', firstName: 'Ada' },
+    user = { username: 'admin', firstName: 'Ada', role: 'ADMIN' },
     loading = false,
     logout = vi.fn(),
   } = options;

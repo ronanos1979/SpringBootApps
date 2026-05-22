@@ -109,7 +109,7 @@ class BookWordControllerMockMvcTest {
                 .thenReturn(List.of(bw));
         when(definitionRepository.findByWord_Id(2L)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/books/1/words").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/books/1/words").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(5))
                 .andExpect(jsonPath("$[0].word.text").value("ephemeral"))
@@ -127,7 +127,7 @@ class BookWordControllerMockMvcTest {
         when(bookWordRepository.findByBook_IdOrderByCreatedAtDesc(1L)).thenReturn(List.of(bw));
         when(definitionRepository.findByWord_Id(2L)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/books/1/words?mine=false").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/books/1/words?mine=false").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].word.text").value("ephemeral"));
     }
@@ -136,7 +136,7 @@ class BookWordControllerMockMvcTest {
     void listWordsForBookReturns404WhenBookMissing() throws Exception {
         when(bookRepository.existsById(99L)).thenReturn(false);
 
-        mockMvc.perform(get("/api/books/99/words").with(user("ronan").roles("USER")))
+        mockMvc.perform(get("/api/books/99/words").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
@@ -158,7 +158,7 @@ class BookWordControllerMockMvcTest {
         when(definitionRepository.findByWord_Id(2L)).thenReturn(List.of());
 
         mockMvc.perform(post("/api/books/1/words")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -187,7 +187,7 @@ class BookWordControllerMockMvcTest {
         when(bookWordRepository.existsByBook_IdAndWord_Id(1L, 2L)).thenReturn(true);
 
         mockMvc.perform(post("/api/books/1/words")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -204,7 +204,7 @@ class BookWordControllerMockMvcTest {
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/api/books/99/words")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -218,7 +218,7 @@ class BookWordControllerMockMvcTest {
     @Test
     void addWordToBookRejectsBlankText() throws Exception {
         mockMvc.perform(post("/api/books/1/words")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -237,7 +237,7 @@ class BookWordControllerMockMvcTest {
 
         when(bookWordRepository.findById(5L)).thenReturn(Optional.of(bw));
 
-        mockMvc.perform(delete("/api/books/1/words/5").with(user("ronan").roles("USER")))
+        mockMvc.perform(delete("/api/books/1/words/5").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNoContent());
 
         verify(bookWordRepository).deleteById(5L);
@@ -247,7 +247,7 @@ class BookWordControllerMockMvcTest {
     void removeWordFromBookReturns404WhenEntryMissing() throws Exception {
         when(bookWordRepository.findById(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(delete("/api/books/1/words/99").with(user("ronan").roles("USER")))
+        mockMvc.perform(delete("/api/books/1/words/99").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
@@ -259,7 +259,7 @@ class BookWordControllerMockMvcTest {
 
         when(bookWordRepository.findById(5L)).thenReturn(Optional.of(bw));
 
-        mockMvc.perform(delete("/api/books/1/words/5").with(user("ronan").roles("USER")))
+        mockMvc.perform(delete("/api/books/1/words/5").with(user("ronan").roles("ADMIN")))
                 .andExpect(status().isBadRequest());
     }
 
@@ -286,7 +286,7 @@ class BookWordControllerMockMvcTest {
         when(definitionRepository.findByWord_Id(3L)).thenReturn(List.of());
 
         mockMvc.perform(post("/api/books/1/words/bulk")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -322,7 +322,7 @@ class BookWordControllerMockMvcTest {
         when(definitionRepository.findByWord_Id(2L)).thenReturn(List.of());
 
         mockMvc.perform(post("/api/books/1/words/bulk")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -339,7 +339,7 @@ class BookWordControllerMockMvcTest {
         when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/api/books/99/words/bulk")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -353,7 +353,7 @@ class BookWordControllerMockMvcTest {
     @Test
     void bulkAddWordsReturns400WhenWordsListIsEmpty() throws Exception {
         mockMvc.perform(post("/api/books/1/words/bulk")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -381,7 +381,7 @@ class BookWordControllerMockMvcTest {
         when(definitionRepository.findByWord_Id(2L)).thenReturn(List.of());
 
         mockMvc.perform(post("/api/books/1/words/bulk")
-                        .with(user("ronan").roles("USER"))
+                        .with(user("ronan").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {

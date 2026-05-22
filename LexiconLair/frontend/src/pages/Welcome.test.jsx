@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import Welcome from './Welcome';
 import { jsonResponse, mockFetchSequence } from '../test/fetchMock';
 import { renderWithAuth } from '../test/renderWithAuth';
@@ -102,5 +102,24 @@ describe('Welcome', () => {
 
     expect(screen.getByRole('link', { name: /\+ add book/i })).toHaveAttribute('href', '/books/add');
     expect(screen.getByRole('link', { name: /browse all/i })).toHaveAttribute('href', '/books');
+  });
+
+  it('hides admin-only home links for regular users', async () => {
+    mockFetchSequence(jsonResponse([
+      { id: 3, title: 'Beloved', author: { displayName: 'Toni Morrison' } },
+    ]));
+
+    renderWithAuth(<Welcome />, {
+      user: { username: 'reader', firstName: 'Rita', role: 'USER' },
+    });
+
+    expect(await screen.findByText('Beloved')).toBeInTheDocument();
+    const quickActions = screen.getByRole('heading', { name: /quick actions/i }).closest('div');
+    expect(within(quickActions).getByRole('link', { name: /add book/i })).toHaveAttribute('href', '/books/add');
+    expect(within(quickActions).getByRole('link', { name: /game/i })).toHaveAttribute('href', '/game');
+    expect(screen.queryByRole('link', { name: /browse all/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view words/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /users/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /definitions/i })).not.toBeInTheDocument();
   });
 });

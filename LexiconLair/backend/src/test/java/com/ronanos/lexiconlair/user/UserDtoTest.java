@@ -21,6 +21,7 @@ class UserDtoTest {
         user.setUpdatedAt(LocalDateTime.of(2026, 5, 1, 11, 0));
         user.setCreatedBy(7L);
         user.setUpdatedBy(8L);
+        user.setRole("ADMIN");
 
         UserResponse response = UserResponse.from(user);
 
@@ -29,6 +30,7 @@ class UserDtoTest {
         assertEquals("admin@example.com", response.email());
         assertEquals("Admin", response.firstName());
         assertEquals("User", response.lastName());
+        assertEquals("ADMIN", response.role());
         assertEquals(7L, response.createdBy());
         assertEquals(8L, response.updatedBy());
         assertFalse(Arrays.stream(UserResponse.class.getRecordComponents())
