@@ -10,6 +10,7 @@ import com.ronanos.lexiconlair.word.persistence.WordRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,19 @@ public class WordDefinitionService {
     }
 
     @Transactional
-    public Word saveWordWithDefinitions(Word word) {
+    public Word findOrCreateWordWithDefinitions(String text, String language, Long createdBy) {
+        String normalizedText = text.trim().toLowerCase();
+        return wordRepository.findByTextIgnoreCaseAndLanguage(normalizedText, language)
+                .orElseGet(() -> {
+                    Word word = new Word(normalizedText, language);
+                    word.setCreatedAt(LocalDateTime.now());
+                    word.setCreatedBy(createdBy);
+                    return saveWordWithDefinitions(word, createdBy);
+                });
+    }
+
+    @Transactional
+    public Word saveWordWithDefinitions(Word word, Long createdBy) {
         Word savedWord = wordRepository.save(word);
 
         List<DictionaryWordDTO> dictionaryEntries =
@@ -41,7 +54,7 @@ public class WordDefinitionService {
         List<Definition> definitions = new ArrayList<>();
 
         for (DictionaryWordDTO entry : dictionaryEntries) {
-            definitions.addAll(definitionMapper.mapToDefinitions(savedWord, entry));
+            definitions.addAll(definitionMapper.mapToDefinitions(savedWord, entry, createdBy));
         }
 
         definitionRepository.saveAll(definitions);

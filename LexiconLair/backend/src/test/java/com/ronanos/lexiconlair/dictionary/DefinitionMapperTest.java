@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,7 +29,7 @@ class DefinitionMapperTest {
         meaning.setDefinitions(List.of(definitionDTO));
         entry.setMeanings(List.of(meaning));
 
-        List<Definition> actual = definitionMapper.mapToDefinitions(word, entry);
+        List<Definition> actual = definitionMapper.mapToDefinitions(word, entry, 1L);
 
         assertEquals(1, actual.size());
         Definition definition = actual.getFirst();
@@ -40,8 +41,26 @@ class DefinitionMapperTest {
     }
 
     @Test
+    void mapToDefinitionsSetsCreatedAtAndCreatedBy() {
+        Word word = new Word("lexicon", "en");
+        DictionaryWordDTO entry = new DictionaryWordDTO();
+        DictionaryWordDTO.MeaningDTO meaning = new DictionaryWordDTO.MeaningDTO();
+        DictionaryWordDTO.MeaningDTO.DefinitionDTO definitionDTO = new DictionaryWordDTO.MeaningDTO.DefinitionDTO();
+        definitionDTO.setDefinition("a dictionary or vocabulary");
+        meaning.setPartOfSpeech("noun");
+        meaning.setDefinitions(List.of(definitionDTO));
+        entry.setMeanings(List.of(meaning));
+
+        List<Definition> actual = definitionMapper.mapToDefinitions(word, entry, 42L);
+
+        Definition definition = actual.getFirst();
+        assertNotNull(definition.getCreatedAt());
+        assertEquals(42L, definition.getCreatedBy());
+    }
+
+    @Test
     void mapToDefinitionsReturnsEmptyListWhenEntryHasNoMeanings() {
-        List<Definition> actual = definitionMapper.mapToDefinitions(new Word("lexicon", "en"), new DictionaryWordDTO());
+        List<Definition> actual = definitionMapper.mapToDefinitions(new Word("lexicon", "en"), new DictionaryWordDTO(), 1L);
 
         assertTrue(actual.isEmpty());
     }

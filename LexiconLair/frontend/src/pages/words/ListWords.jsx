@@ -34,34 +34,44 @@ export default function ListWords() {
         {loading ? (
           <div className="alert alert-info">Loading words...</div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Text</th>
-                <th>Language</th>
-                <th></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {words.map(word => (
-                <tr key={word.id}>
-                  <td>{word.id}</td>
-                  <td>{word.text}</td>
-                  <td>{word.language}</td>
-                  <td>
-                    <Link to={`/words/update/${word.id}`} className="btn btn-primary">Update</Link>
-                  </td>
-                  <td>
-                    <button onClick={() => handleDelete(word.id)} className="btn btn-warning">
-                      Delete
-                    </button>
-                  </td>
+          <div className="table-responsive">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Text</th>
+                  <th>Language</th>
+                  <th>Created At</th>
+                  <th>Created By</th>
+                  <th>Updated At</th>
+                  <th>Updated By</th>
+                  <th></th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {words.map(word => (
+                  <tr key={word.id}>
+                    <td>{word.id}</td>
+                    <td>{word.text}</td>
+                    <td>{word.language}</td>
+                    <td>{word.createdAt}</td>
+                    <td>{word.createdBy}</td>
+                    <td>{word.updatedAt}</td>
+                    <td>{word.updatedBy}</td>
+                    <td>
+                      <Link to={`/words/update/${word.id}`} className="btn btn-primary">Update</Link>
+                    </td>
+                    <td>
+                      <button onClick={() => handleDelete(word.id)} className="btn btn-warning">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         {!loading && words.length === 0 && (
           <div className="alert alert-secondary">No words found.</div>

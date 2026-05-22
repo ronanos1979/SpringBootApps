@@ -12,7 +12,11 @@ public record DefinitionResponse(
         String partOfSpeech,
         String example,
         String sourceApi,
-        LocalDateTime cachedAt
+        LocalDateTime cachedAt,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        Long createdBy,
+        Long updatedBy
 ) {
     public static DefinitionResponse from(Definition definition) {
         return new DefinitionResponse(
@@ -22,6 +26,10 @@ public record DefinitionResponse(
                 definition.getPartOfSpeech(),
                 definition.getExample(),
                 definition.getSourceApi(),
-                definition.getCachedAt());
+                definition.getCachedAt(),
+                definition.getCreatedAt(),
+                definition.getUpdatedAt(),
+                definition.getCreatedBy(),
+                definition.getUpdatedBy());
     }
 }

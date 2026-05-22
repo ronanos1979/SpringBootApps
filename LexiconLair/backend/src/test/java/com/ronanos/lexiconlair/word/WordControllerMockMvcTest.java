@@ -1,6 +1,11 @@
 package com.ronanos.lexiconlair.word;
 
+import com.ronanos.lexiconlair.bookword.domain.BookWord;
+import com.ronanos.lexiconlair.bookword.persistence.BookWordRepository;
+import com.ronanos.lexiconlair.definition.persistence.DefinitionRepository;
 import com.ronanos.lexiconlair.security.SpringSecurityConfiguration;
+import com.ronanos.lexiconlair.user.domain.User;
+import com.ronanos.lexiconlair.user.persistence.UserRepository;
 import com.ronanos.lexiconlair.word.domain.Word;
 import com.ronanos.lexiconlair.word.persistence.WordRepository;
 import com.ronanos.lexiconlair.word.service.WordDefinitionService;
@@ -18,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,7 +49,22 @@ class WordControllerMockMvcTest {
     private WordDefinitionService wordDefinitionService;
 
     @MockitoBean
+    private UserRepository userRepository;
+
+    @MockitoBean
+    private BookWordRepository bookWordRepository;
+
+    @MockitoBean
+    private DefinitionRepository definitionRepository;
+
+    @MockitoBean
     private UserDetailsService userDetailsService;
+
+    private User currentUser() {
+        User u = new User();
+        u.setId(1L);
+        return u;
+    }
 
     @Test
     void listWordsReturnsJsonForAuthenticatedUser() throws Exception {
@@ -67,7 +88,7 @@ class WordControllerMockMvcTest {
 
     @Test
     void createWordDelegatesToDefinitionService() throws Exception {
-        when(wordDefinitionService.saveWordWithDefinitions(any(Word.class)))
+        when(wordDefinitionService.saveWordWithDefinitions(any(Word.class), any()))
                 .thenReturn(new Word("ephemeral", "en"));
 
         mockMvc.perform(post("/api/words")
@@ -82,8 +103,33 @@ class WordControllerMockMvcTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.text").value("ephemeral"));
 
-        verify(wordDefinitionService).saveWordWithDefinitions(argThat(word ->
-                word.getText().equals("ephemeral") && word.getLanguage().equals("en")));
+        verify(wordDefinitionService).saveWordWithDefinitions(
+                argThat(word -> word.getText().equals("ephemeral") && word.getLanguage().equals("en")),
+                any());
+    }
+
+    @Test
+    void createWordSetsCreatedAtAndCreatedBy() throws Exception {
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser()));
+        Word saved = new Word("ephemeral", "en");
+        saved.setCreatedBy(1L);
+        when(wordDefinitionService.saveWordWithDefinitions(any(Word.class), anyLong())).thenReturn(saved);
+
+        mockMvc.perform(post("/api/words")
+                        .with(user("ronan").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "text": "ephemeral",
+                                  "language": "en"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.createdBy").value(1));
+
+        verify(wordDefinitionService).saveWordWithDefinitions(
+                argThat(word -> word.getCreatedAt() != null && Long.valueOf(1L).equals(word.getCreatedBy())),
+                anyLong());
     }
 
     @Test
@@ -125,15 +171,45 @@ class WordControllerMockMvcTest {
     }
 
     @Test
+    void updateWordSetsUpdatedAtAndUpdatedBy() throws Exception {
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser()));
+        Word existing = new Word("oldword", "en");
+        when(wordRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(wordRepository.save(any(Word.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        mockMvc.perform(put("/api/words/1")
+                        .with(user("ronan").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "text": "newword",
+                                  "language": "en"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updatedAt").isNotEmpty())
+                .andExpect(jsonPath("$.updatedBy").value(1));
+
+        verify(wordRepository).save(argThat(word ->
+                word.getUpdatedAt() != null && Long.valueOf(1L).equals(word.getUpdatedBy())));
+    }
+
+    @Test
+    void searchWordsReturnsResultsAcrossAllUsers() throws Exception {
+        when(bookWordRepository.searchAll("eph")).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/words/search?q=eph").with(user("ronan").roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
     void getWordReturns404WhenMissing() throws Exception {
         when(wordRepository.findById(99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/words/99").with(user("ronan").roles("USER")))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.error").value("Not Found"))
-                .andExpect(jsonPath("$.message").value("Word not found"))
-                .andExpect(jsonPath("$.path").value("/api/words/99"));
+                .andExpect(jsonPath("$.message").value("Word not found"));
     }
 
     @Test

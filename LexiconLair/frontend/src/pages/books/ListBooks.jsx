@@ -34,34 +34,45 @@ export default function ListBooks() {
         {loading ? (
           <div className="alert alert-info">Loading books...</div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Book</th>
-                <th>Author</th>
-                <th></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {books.map(book => (
-                <tr key={book.id}>
-                  <td>{book.id}</td>
-                  <td>{book.title}</td>
-                  <td>{book.author?.displayName}</td>
-                  <td>
-                    <Link to={`/books/update/${book.id}`} className="btn btn-primary">Update</Link>
-                  </td>
-                  <td>
-                    <button onClick={() => handleDelete(book.id)} className="btn btn-warning">
-                      Delete
-                    </button>
-                  </td>
+          <div className="table-responsive">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Book</th>
+                  <th>Author</th>
+                  <th>Created At</th>
+                  <th>Created By</th>
+                  <th>Updated At</th>
+                  <th>Updated By</th>
+                  <th></th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {books.map(book => (
+                  <tr key={book.id}>
+                    <td>{book.id}</td>
+                    <td>{book.title}</td>
+                    <td>{book.author?.displayName}</td>
+                    <td>{book.createdAt}</td>
+                    <td>{book.createdBy}</td>
+                    <td>{book.updatedAt}</td>
+                    <td>{book.updatedBy}</td>
+                    <td>
+                      <Link to={`/books/${book.id}`} className="btn btn-info me-1">View Words</Link>
+                      <Link to={`/books/update/${book.id}`} className="btn btn-primary">Update</Link>
+                    </td>
+                    <td>
+                      <button onClick={() => handleDelete(book.id)} className="btn btn-warning">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         {!loading && books.length === 0 && (
           <div className="alert alert-secondary">No books found.</div>

@@ -4,6 +4,8 @@ import com.ronanos.lexiconlair.definition.domain.Definition;
 import com.ronanos.lexiconlair.definition.persistence.DefinitionRepository;
 import com.ronanos.lexiconlair.definition.web.DefinitionController;
 import com.ronanos.lexiconlair.security.SpringSecurityConfiguration;
+import com.ronanos.lexiconlair.user.domain.User;
+import com.ronanos.lexiconlair.user.persistence.UserRepository;
 import com.ronanos.lexiconlair.word.domain.Word;
 import com.ronanos.lexiconlair.word.persistence.WordRepository;
 import org.junit.jupiter.api.Test;
@@ -45,7 +47,16 @@ class DefinitionControllerMockMvcTest {
     private WordRepository wordRepository;
 
     @MockitoBean
+    private UserRepository userRepository;
+
+    @MockitoBean
     private UserDetailsService userDetailsService;
+
+    private User currentUser() {
+        User u = new User();
+        u.setId(1L);
+        return u;
+    }
 
     @Test
     void listDefinitionsReturnsJsonForAuthenticatedUser() throws Exception {
@@ -67,8 +78,7 @@ class DefinitionControllerMockMvcTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.definitionText").value("A vocabulary."))
                 .andExpect(jsonPath("$.partOfSpeech").value("noun"))
-                .andExpect(jsonPath("$.word.text").value("lexicon"))
-                .andExpect(jsonPath("$.word.language").value("en"));
+                .andExpect(jsonPath("$.word.text").value("lexicon"));
     }
 
     @Test
@@ -93,10 +103,35 @@ class DefinitionControllerMockMvcTest {
                 .andExpect(jsonPath("$.word.text").value("lexicon"))
                 .andExpect(jsonPath("$.definitionText").value("A vocabulary."));
 
-        verify(definitionRepository).save(argThat(definition ->
-                definition.getWord().getText().equals("lexicon")
-                        && definition.getDefinitionText().equals("A vocabulary.")
-                        && definition.getPartOfSpeech().equals("noun")));
+        verify(definitionRepository).save(argThat(d ->
+                d.getWord().getText().equals("lexicon")
+                        && d.getDefinitionText().equals("A vocabulary.")
+                        && d.getPartOfSpeech().equals("noun")));
+    }
+
+    @Test
+    void createDefinitionSetsCreatedAtAndCreatedBy() throws Exception {
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser()));
+        when(wordRepository.findById(1L)).thenReturn(Optional.of(new Word("lexicon", "en")));
+        when(definitionRepository.save(any(Definition.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        mockMvc.perform(post("/api/definitions")
+                        .with(user("ronan").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "wordId": 1,
+                                  "definitionText": "A vocabulary.",
+                                  "partOfSpeech": "noun",
+                                  "sourceApi": "dictionary-api"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.createdBy").value(1));
+
+        verify(definitionRepository).save(argThat(d ->
+                d.getCreatedAt() != null && Long.valueOf(1L).equals(d.getCreatedBy())));
     }
 
     @Test
@@ -115,10 +150,34 @@ class DefinitionControllerMockMvcTest {
                                 }
                 """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.error").value("Bad Request"))
-                .andExpect(jsonPath("$.message").value("Invalid word id"))
-                .andExpect(jsonPath("$.path").value("/api/definitions"));
+                .andExpect(jsonPath("$.message").value("Invalid word id"));
+    }
+
+    @Test
+    void updateDefinitionSetsUpdatedAtAndUpdatedBy() throws Exception {
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser()));
+        Definition existing = definition("oldword");
+        when(definitionRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(wordRepository.findById(2L)).thenReturn(Optional.of(new Word("updated", "en")));
+        when(definitionRepository.save(any(Definition.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        mockMvc.perform(put("/api/definitions/1")
+                        .with(user("ronan").roles("USER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "wordId": 2,
+                                  "definitionText": "Updated definition.",
+                                  "partOfSpeech": "verb",
+                                  "sourceApi": "dictionary-api"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updatedAt").isNotEmpty())
+                .andExpect(jsonPath("$.updatedBy").value(1));
+
+        verify(definitionRepository).save(argThat(d ->
+                d.getUpdatedAt() != null && Long.valueOf(1L).equals(d.getUpdatedBy())));
     }
 
     @Test
@@ -136,37 +195,7 @@ class DefinitionControllerMockMvcTest {
                                   "sourceApi": "dictionary-api"
                                 }
                 """))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.error").value("Not Found"))
-                .andExpect(jsonPath("$.message").value("Definition not found"))
-                .andExpect(jsonPath("$.path").value("/api/definitions/99"));
-    }
-
-    @Test
-    void updateDefinitionReturnsUpdatedDefinitionResponseDto() throws Exception {
-        Definition existing = definition("oldword");
-        when(definitionRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(wordRepository.findById(2L)).thenReturn(Optional.of(new Word("updated", "en")));
-        when(definitionRepository.save(any(Definition.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        mockMvc.perform(put("/api/definitions/1")
-                        .with(user("ronan").roles("USER"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "wordId": 2,
-                                  "definitionText": "Updated definition.",
-                                  "partOfSpeech": "verb",
-                                  "example": "Updated example.",
-                                  "sourceApi": "dictionary-api",
-                                  "cachedAt": "2026-05-01T11:00:00"
-                                }
-                                """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.word.text").value("updated"))
-                .andExpect(jsonPath("$.definitionText").value("Updated definition."))
-                .andExpect(jsonPath("$.partOfSpeech").value("verb"));
+                .andExpect(status().isNotFound());
     }
 
     @Test

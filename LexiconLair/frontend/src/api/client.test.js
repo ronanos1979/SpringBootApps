@@ -1,4 +1,5 @@
 import {
+  bulkAddWordsToBook,
   createAuthor,
   createBook,
   createUser,
@@ -20,6 +21,9 @@ import {
   listWords,
   login,
   logout,
+  saveBookToCollection,
+  searchAuthors,
+  searchBooks,
   updateAuthor,
   updateBook,
   updateUser,
@@ -155,6 +159,23 @@ describe('api client', () => {
     expect(fetchMock).toHaveBeenNthCalledWith(8, '/api/users/1', expect.objectContaining({
       method: 'PUT',
       body: JSON.stringify({ username: 'reader', password: '', email: 'reader@example.com' }),
+    }));
+  });
+
+  it('calls search and save-to-collection endpoints with correct URLs', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(await mockResponse([]));
+
+    await searchBooks('hamlet');
+    await searchAuthors('shake');
+    await saveBookToCollection(5);
+    await bulkAddWordsToBook(1, { words: ['ephemeral', 'serendipity'], language: 'en' });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/books/search?q=hamlet', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/authors/search?q=shake', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(3, '/api/books/5/save', expect.objectContaining({ method: 'POST' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(4, '/api/books/1/words/bulk', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ words: ['ephemeral', 'serendipity'], language: 'en' }),
     }));
   });
 

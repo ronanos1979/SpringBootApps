@@ -5,7 +5,10 @@ import com.ronanos.lexiconlair.word.dto.WordResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class WordDtoTest {
 
@@ -19,5 +22,34 @@ class WordDtoTest {
         assertEquals(1L, response.id());
         assertEquals("lexicon", response.text());
         assertEquals("en", response.language());
+    }
+
+    @Test
+    void wordResponseMapsAuditFields() {
+        Word word = new Word("lexicon", "en");
+        LocalDateTime now = LocalDateTime.of(2026, 5, 22, 10, 0);
+        word.setCreatedAt(now);
+        word.setCreatedBy(5L);
+        word.setUpdatedAt(now.plusHours(2));
+        word.setUpdatedBy(6L);
+
+        WordResponse response = WordResponse.from(word);
+
+        assertEquals(now, response.createdAt());
+        assertEquals(5L, response.createdBy());
+        assertEquals(now.plusHours(2), response.updatedAt());
+        assertEquals(6L, response.updatedBy());
+    }
+
+    @Test
+    void wordResponseHasNullAuditFieldsWhenNotSet() {
+        Word word = new Word("lexicon", "en");
+
+        WordResponse response = WordResponse.from(word);
+
+        assertNull(response.createdAt());
+        assertNull(response.createdBy());
+        assertNull(response.updatedAt());
+        assertNull(response.updatedBy());
     }
 }

@@ -45,6 +45,10 @@ export default function ListDefinitions() {
                   <th>Example</th>
                   <th>Source API</th>
                   <th>Cached At</th>
+                  <th>Created At</th>
+                  <th>Created By</th>
+                  <th>Updated At</th>
+                  <th>Updated By</th>
                   <th></th>
                 </tr>
               </thead>
@@ -61,6 +65,10 @@ export default function ListDefinitions() {
                       <a href={def.sourceApi} target="_blank" rel="noreferrer">{def.sourceApi}</a>
                     </td>
                     <td>{def.cachedAt}</td>
+                    <td>{def.createdAt}</td>
+                    <td>{def.createdBy}</td>
+                    <td>{def.updatedAt}</td>
+                    <td>{def.updatedBy}</td>
                     <td>
                       <button onClick={() => handleDelete(def.id)} className="btn btn-warning">
                         Delete

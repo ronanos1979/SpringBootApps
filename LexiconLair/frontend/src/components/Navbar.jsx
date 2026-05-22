@@ -18,11 +18,12 @@ export default function Navbar() {
       <div className="collapse navbar-collapse">
         <ul className="navbar-nav">
           <li className="nav-item"><Link className="nav-link" to="/">Home</Link></li>
-          <li className="nav-item"><Link className="nav-link" to="/users">Users</Link></li>
-          <li className="nav-item"><Link className="nav-link" to="/words">Words</Link></li>
-          <li className="nav-item"><Link className="nav-link" to="/authors">Authors</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/books">Books</Link></li>
+          <li className="nav-item"><Link className="nav-link" to="/words/search">Word Search</Link></li>
+          <li className="nav-item"><Link className="nav-link" to="/authors">Authors</Link></li>
+          <li className="nav-item"><Link className="nav-link" to="/words">All Words</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/definitions">Definitions</Link></li>
+          <li className="nav-item"><Link className="nav-link" to="/users">Users</Link></li>
         </ul>
       </div>
       <ul className="navbar-nav">

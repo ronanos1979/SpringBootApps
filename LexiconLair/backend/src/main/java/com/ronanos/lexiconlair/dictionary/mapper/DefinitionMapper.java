@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class DefinitionMapper {
 
-    public List<Definition> mapToDefinitions(Word word, DictionaryWordDTO entry) {
+    public List<Definition> mapToDefinitions(Word word, DictionaryWordDTO entry, Long createdBy) {
         List<Definition> results = new ArrayList<>();
 
         if (entry == null || entry.getMeanings() == null) {
@@ -36,6 +36,8 @@ public class DefinitionMapper {
                 definition.setExample(def.getExample());
                 definition.setSourceApi("dictionaryapi.dev");
                 definition.setCachedAt(LocalDateTime.now());
+                definition.setCreatedAt(LocalDateTime.now());
+                definition.setCreatedBy(createdBy);
                 results.add(definition);
             }
         }

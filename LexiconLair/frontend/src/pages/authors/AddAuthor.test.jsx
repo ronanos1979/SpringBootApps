@@ -58,8 +58,8 @@ describe('AddAuthor', () => {
     }));
   });
 
-  it('shows backend save errors', async () => {
-    mockFetchSequence(jsonResponse({ message: 'Author exists' }, {
+  it('shows backend 409 conflict error', async () => {
+    mockFetchSequence(jsonResponse({ message: 'Author already exists' }, {
       ok: false,
       status: 409,
       statusText: 'Conflict',
@@ -74,6 +74,63 @@ describe('AddAuthor', () => {
     await userEvent.type(screen.getByLabelText(/last name/i), 'Morrison');
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
-    expect(await screen.findByText('Author exists')).toBeInTheDocument();
+    expect(await screen.findByText('Author already exists')).toBeInTheDocument();
+  });
+
+  it('shows live search suggestions as name is typed', async () => {
+    mockFetchSequence(
+      jsonResponse([{ id: 1, firstName: 'Jane', lastName: 'Austen', displayName: 'Jane Austen' }]),
+    );
+
+    renderWithAuth(<AddAuthor />, {
+      initialEntries: ['/authors/add'],
+      path: '/authors/add',
+    });
+
+    await userEvent.type(screen.getByLabelText(/first name/i), 'Jane');
+    await userEvent.type(screen.getByLabelText(/last name/i), 'Au');
+
+    // suggestions appear after 300ms debounce
+    expect(await screen.findByText('Jane Austen')).toBeInTheDocument();
+    expect(screen.getByText(/already exists/i)).toBeInTheDocument();
+  });
+
+  it('shows info message and hides suggestions when existing author is clicked', async () => {
+    mockFetchSequence(
+      jsonResponse([{ id: 1, firstName: 'Jane', lastName: 'Austen', displayName: 'Jane Austen' }]),
+    );
+
+    renderWithAuth(<AddAuthor />, {
+      initialEntries: ['/authors/add'],
+      path: '/authors/add',
+    });
+
+    await userEvent.type(screen.getByLabelText(/first name/i), 'Jane');
+    await userEvent.type(screen.getByLabelText(/last name/i), 'Au');
+
+    const suggestion = await screen.findByText('Jane Austen');
+    await userEvent.click(suggestion.closest('li'));
+
+    expect(screen.getByText(/"Jane Austen" already exists/i)).toBeInTheDocument();
+    expect(screen.queryByText(/already exists in system/i)).not.toBeInTheDocument();
+  });
+
+  it('does not show suggestions in edit mode', async () => {
+    const fetchMock = mockFetchSequence(
+      jsonResponse({ id: 1, firstName: 'Old', lastName: 'Name' }),
+    );
+
+    renderWithAuth(<AddAuthor />, {
+      initialEntries: ['/authors/update/1'],
+      path: '/authors/update/:id',
+    });
+
+    await screen.findByLabelText(/first name/i);
+    await userEvent.type(screen.getByLabelText(/last name/i), 'Ne');
+
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      expect.stringContaining('/api/authors/search'),
+      expect.anything(),
+    );
   });
 });

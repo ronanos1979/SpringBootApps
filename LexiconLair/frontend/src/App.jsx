@@ -7,8 +7,10 @@ import ListAuthors from './pages/authors/ListAuthors';
 import AddAuthor from './pages/authors/AddAuthor';
 import ListBooks from './pages/books/ListBooks';
 import AddBook from './pages/books/AddBook';
+import BookDetail from './pages/books/BookDetail';
 import ListWords from './pages/words/ListWords';
 import AddWord from './pages/words/AddWord';
+import WordSearch from './pages/words/WordSearch';
 import ListUsers from './pages/users/ListUsers';
 import AddUser from './pages/users/AddUser';
 import ListDefinitions from './pages/definitions/ListDefinitions';
@@ -36,10 +38,12 @@ function App() {
           <Route path="/books" element={<RequireAuth><ListBooks /></RequireAuth>} />
           <Route path="/books/add" element={<RequireAuth><AddBook /></RequireAuth>} />
           <Route path="/books/update/:id" element={<RequireAuth><AddBook /></RequireAuth>} />
+          <Route path="/books/:id" element={<RequireAuth><BookDetail /></RequireAuth>} />
 
           <Route path="/words" element={<RequireAuth><ListWords /></RequireAuth>} />
           <Route path="/words/add" element={<RequireAuth><AddWord /></RequireAuth>} />
           <Route path="/words/update/:id" element={<RequireAuth><AddWord /></RequireAuth>} />
+          <Route path="/words/search" element={<RequireAuth><WordSearch /></RequireAuth>} />
 
           <Route path="/users" element={<RequireAuth><ListUsers /></RequireAuth>} />
           <Route path="/users/add" element={<RequireAuth><AddUser /></RequireAuth>} />

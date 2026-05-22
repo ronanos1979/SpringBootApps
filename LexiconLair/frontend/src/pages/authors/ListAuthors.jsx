@@ -34,36 +34,46 @@ export default function ListAuthors() {
         {loading ? (
           <div className="alert alert-info">Loading authors...</div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {authors.map(author => (
-                <tr key={author.id}>
-                  <td>{author.id}</td>
-                  <td>{author.firstName}</td>
-                  <td>{author.lastName}</td>
-                  <td>
-                    <Link to={`/authors/update/${author.id}`} className="btn btn-primary">
-                      Update
-                    </Link>
-                  </td>
-                  <td>
-                    <button onClick={() => handleDelete(author.id)} className="btn btn-warning">
-                      Delete
-                    </button>
-                  </td>
+          <div className="table-responsive">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Created At</th>
+                  <th>Created By</th>
+                  <th>Updated At</th>
+                  <th>Updated By</th>
+                  <th></th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {authors.map(author => (
+                  <tr key={author.id}>
+                    <td>{author.id}</td>
+                    <td>{author.firstName}</td>
+                    <td>{author.lastName}</td>
+                    <td>{author.createdAt}</td>
+                    <td>{author.createdBy}</td>
+                    <td>{author.updatedAt}</td>
+                    <td>{author.updatedBy}</td>
+                    <td>
+                      <Link to={`/authors/update/${author.id}`} className="btn btn-primary">
+                        Update
+                      </Link>
+                    </td>
+                    <td>
+                      <button onClick={() => handleDelete(author.id)} className="btn btn-warning">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         {!loading && authors.length === 0 && (
           <div className="alert alert-secondary">No authors found.</div>

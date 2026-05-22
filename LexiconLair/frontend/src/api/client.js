@@ -60,6 +60,10 @@ export function listAuthors() {
   return request('/api/authors');
 }
 
+export function searchAuthors(q) {
+  return request(`/api/authors/search?q=${encodeURIComponent(q)}`);
+}
+
 export function getAuthor(id) {
   return request(`/api/authors/${id}`);
 }
@@ -78,8 +82,16 @@ export function deleteAuthor(id) {
   });
 }
 
-export function listBooks() {
-  return request('/api/books');
+export function listBooks(mine = false) {
+  return request(`/api/books${mine ? '?mine=true' : ''}`);
+}
+
+export function searchBooks(q) {
+  return request(`/api/books/search?q=${encodeURIComponent(q)}`);
+}
+
+export function saveBookToCollection(bookId) {
+  return request(`/api/books/${bookId}/save`, { method: 'POST' });
 }
 
 export function getBook(id) {
@@ -100,8 +112,30 @@ export function deleteBook(id) {
   });
 }
 
+export function getBookWords(bookId, mine = true) {
+  return request(`/api/books/${bookId}/words?mine=${mine}`);
+}
+
+export function addWordToBook(bookId, word) {
+  return jsonRequest(`/api/books/${bookId}/words`, 'POST', word);
+}
+
+export function bulkAddWordsToBook(bookId, payload) {
+  return jsonRequest(`/api/books/${bookId}/words/bulk`, 'POST', payload);
+}
+
+export function removeWordFromBook(bookId, bookWordId) {
+  return request(`/api/books/${bookId}/words/${bookWordId}`, {
+    method: 'DELETE',
+  });
+}
+
 export function listWords() {
   return request('/api/words');
+}
+
+export function searchWords(q) {
+  return request(`/api/words/search?q=${encodeURIComponent(q)}`);
 }
 
 export function getWord(id) {

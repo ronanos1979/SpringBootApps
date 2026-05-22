@@ -1,7 +1,13 @@
 package com.ronanos.lexiconlair.word.web;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import com.ronanos.lexiconlair.bookword.dto.WordSearchResult;
+import com.ronanos.lexiconlair.bookword.persistence.BookWordRepository;
+import com.ronanos.lexiconlair.definition.persistence.DefinitionRepository;
+import com.ronanos.lexiconlair.user.domain.User;
+import com.ronanos.lexiconlair.user.persistence.UserRepository;
 import com.ronanos.lexiconlair.word.domain.Word;
 import com.ronanos.lexiconlair.word.dto.WordRequest;
 import com.ronanos.lexiconlair.word.dto.WordResponse;
@@ -11,6 +17,8 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,17 +39,34 @@ public class WordController {
 
     private final WordRepository wordRepository;
     private final WordDefinitionService wordDefinitionService;
+    private final UserRepository userRepository;
+    private final BookWordRepository bookWordRepository;
+    private final DefinitionRepository definitionRepository;
 
-    public WordController(WordRepository wordRepository, WordDefinitionService wordDefinitionService) {
+    public WordController(
+            WordRepository wordRepository,
+            WordDefinitionService wordDefinitionService,
+            UserRepository userRepository,
+            BookWordRepository bookWordRepository,
+            DefinitionRepository definitionRepository) {
         this.wordRepository = wordRepository;
         this.wordDefinitionService = wordDefinitionService;
+        this.userRepository = userRepository;
+        this.bookWordRepository = bookWordRepository;
+        this.definitionRepository = definitionRepository;
     }
-
 
     @GetMapping
     public List<WordResponse> listWords() {
         return wordRepository.findAll().stream()
                 .map(WordResponse::from)
+                .toList();
+    }
+
+    @GetMapping("/search")
+    public List<WordSearchResult> searchWords(@RequestParam(defaultValue = "") String q) {
+        return bookWordRepository.searchAll(q).stream()
+                .map(bw -> WordSearchResult.from(bw, definitionRepository.findByWord_Id(bw.getWord().getId())))
                 .toList();
     }
 
@@ -54,8 +80,11 @@ public class WordController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public WordResponse createWord(@Valid @RequestBody WordRequest request) {
+        Long currentUserId = getCurrentUserId();
         Word word = new Word(request.text(), request.language());
-        Word saved = wordDefinitionService.saveWordWithDefinitions(word);
+        word.setCreatedAt(LocalDateTime.now());
+        word.setCreatedBy(currentUserId);
+        Word saved = wordDefinitionService.saveWordWithDefinitions(word, currentUserId);
         logger.info("Created word {}", saved.getText());
         return WordResponse.from(saved);
     }
@@ -66,6 +95,8 @@ public class WordController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found"));
         existing.setText(request.text());
         existing.setLanguage(request.language());
+        existing.setUpdatedAt(LocalDateTime.now());
+        existing.setUpdatedBy(getCurrentUserId());
         Word saved = wordRepository.save(existing);
         logger.info("Updated word {}", saved.getText());
         return WordResponse.from(saved);
@@ -75,5 +106,15 @@ public class WordController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteWord(@PathVariable Long id) {
         wordRepository.deleteById(id);
+    }
+
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        return userRepository.findByUsername(authentication.getName())
+                .map(User::getId)
+                .orElse(null);
     }
 }
