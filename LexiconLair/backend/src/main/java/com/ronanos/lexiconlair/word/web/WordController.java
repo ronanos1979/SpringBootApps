@@ -1,9 +1,12 @@
 package com.ronanos.lexiconlair.word.web;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.ronanos.lexiconlair.bookword.dto.WordSearchResult;
+import com.ronanos.lexiconlair.bookword.domain.BookWord;
 import com.ronanos.lexiconlair.bookword.persistence.BookWordRepository;
 import com.ronanos.lexiconlair.definition.persistence.DefinitionRepository;
 import com.ronanos.lexiconlair.user.domain.User;
@@ -65,9 +68,20 @@ public class WordController {
 
     @GetMapping("/search")
     public List<WordSearchResult> searchWords(@RequestParam(defaultValue = "") String q) {
-        return bookWordRepository.searchAll(q).stream()
+        List<BookWord> bookWords = bookWordRepository.searchAll(q);
+        Set<Long> wordIdsWithBookContext = new HashSet<>();
+
+        List<WordSearchResult> bookWordResults = bookWords.stream()
+                .peek(bw -> wordIdsWithBookContext.add(bw.getWord().getId()))
                 .map(bw -> WordSearchResult.from(bw, definitionRepository.findByWord_Id(bw.getWord().getId())))
                 .toList();
+
+        List<WordSearchResult> savedWordResults = wordRepository.searchByText(q).stream()
+                .filter(word -> !wordIdsWithBookContext.contains(word.getId()))
+                .map(word -> WordSearchResult.from(word, definitionRepository.findByWord_Id(word.getId())))
+                .toList();
+
+        return java.util.stream.Stream.concat(bookWordResults.stream(), savedWordResults.stream()).toList();
     }
 
     @GetMapping("/{id}")

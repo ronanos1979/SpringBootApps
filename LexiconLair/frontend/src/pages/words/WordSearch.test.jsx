@@ -20,13 +20,23 @@ const searchResult = {
   createdAt: '2026-05-22T10:00:00',
 };
 
+const savedWordResult = {
+  bookWordId: null,
+  bookId: null,
+  bookTitle: null,
+  authorDisplayName: null,
+  word: { id: 12, text: 'stoic', language: 'en' },
+  definitions: [],
+  createdAt: '2026-05-22T10:00:00',
+};
+
 describe('WordSearch', () => {
   it('renders the search page heading and all-user scope description', () => {
     renderWithAuth(<WordSearch />);
 
     expect(screen.getByRole('heading', { name: /word search/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/search for a word/i)).toBeInTheDocument();
-    expect(screen.getByText(/all words added to any book by any user/i)).toBeInTheDocument();
+    expect(screen.getByText(/all saved words/i)).toBeInTheDocument();
   });
 
   it('shows results from other users', async () => {
@@ -79,6 +89,19 @@ describe('WordSearch', () => {
     const bookLink = screen.getByRole('link', { name: /hamlet/i });
     expect(bookLink).toHaveAttribute('href', '/books/1');
     expect(bookLink.textContent).toContain('William Shakespeare');
+  });
+
+  it('shows saved words without book context', async () => {
+    mockFetchSequence(jsonResponse([savedWordResult]));
+
+    renderWithAuth(<WordSearch />);
+
+    await userEvent.type(screen.getByPlaceholderText(/search for a word/i), 'stoic');
+    await userEvent.click(screen.getByRole('button', { name: /search/i }));
+
+    expect(await screen.findByText('stoic')).toBeInTheDocument();
+    expect(screen.getByText('Saved word')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /hamlet/i })).not.toBeInTheDocument();
   });
 
   it('shows empty state when no results', async () => {

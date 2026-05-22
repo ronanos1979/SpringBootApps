@@ -2,6 +2,7 @@ package com.ronanos.lexiconlair.bookword.dto;
 
 import com.ronanos.lexiconlair.bookword.domain.BookWord;
 import com.ronanos.lexiconlair.definition.domain.Definition;
+import com.ronanos.lexiconlair.word.domain.Word;
 import com.ronanos.lexiconlair.word.dto.WordResponse;
 
 import java.time.LocalDateTime;
@@ -25,5 +26,16 @@ public record WordSearchResult(
                 WordResponse.from(bookWord.getWord()),
                 definitions.stream().map(DefinitionSummary::from).toList(),
                 bookWord.getCreatedAt());
+    }
+
+    public static WordSearchResult from(Word word, List<Definition> definitions) {
+        return new WordSearchResult(
+                null,
+                null,
+                null,
+                null,
+                WordResponse.from(word),
+                definitions.stream().map(DefinitionSummary::from).toList(),
+                word.getCreatedAt());
     }
 }

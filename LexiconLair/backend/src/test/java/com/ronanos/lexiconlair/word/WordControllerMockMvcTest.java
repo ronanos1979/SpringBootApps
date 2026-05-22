@@ -16,6 +16,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -197,10 +198,28 @@ class WordControllerMockMvcTest {
     @Test
     void searchWordsReturnsResultsAcrossAllUsers() throws Exception {
         when(bookWordRepository.searchAll("eph")).thenReturn(List.of());
+        when(wordRepository.searchByText("eph")).thenReturn(List.of());
 
         mockMvc.perform(get("/api/words/search?q=eph").with(user("ronan").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void searchWordsReturnsSavedWordsWithoutBookContext() throws Exception {
+        Word stoic = new Word("stoic", "en");
+        ReflectionTestUtils.setField(stoic, "id", 12L);
+
+        when(bookWordRepository.searchAll("stoic")).thenReturn(List.of());
+        when(wordRepository.searchByText("stoic")).thenReturn(List.of(stoic));
+        when(definitionRepository.findByWord_Id(12L)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/words/search?q=stoic").with(user("ronan").roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].bookWordId").doesNotExist())
+                .andExpect(jsonPath("$[0].bookId").doesNotExist())
+                .andExpect(jsonPath("$[0].word.text").value("stoic"))
+                .andExpect(jsonPath("$[0].word.language").value("en"));
     }
 
     @Test

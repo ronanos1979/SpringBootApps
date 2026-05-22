@@ -29,7 +29,7 @@ export default function WordSearch() {
     <Layout>
       <div className="container">
         <h1>Word Search</h1>
-        <p className="text-muted">Search across all words added to any book by any user.</p>
+        <p className="text-muted">Search across all saved words, including words added to books by any user.</p>
 
         <form onSubmit={handleSearch} className="row g-2 mb-4">
           <div className="col-md-8">
@@ -55,16 +55,20 @@ export default function WordSearch() {
         )}
 
         {results.map(result => (
-          <div key={result.bookWordId} className="card mb-3">
+          <div key={result.bookWordId ?? `word-${result.word.id}`} className="card mb-3">
             <div className="card-header d-flex justify-content-between align-items-center">
               <div>
                 <strong className="fs-5">{result.word.text}</strong>
                 <span className="badge bg-secondary ms-2">{result.word.language}</span>
               </div>
-              <Link to={`/books/${result.bookId}`} className="btn btn-sm btn-outline-primary">
-                {result.bookTitle}
-                <small className="text-muted ms-1">by {result.authorDisplayName}</small>
-              </Link>
+              {result.bookId ? (
+                <Link to={`/books/${result.bookId}`} className="btn btn-sm btn-outline-primary">
+                  {result.bookTitle}
+                  <small className="text-muted ms-1">by {result.authorDisplayName}</small>
+                </Link>
+              ) : (
+                <span className="badge bg-light text-dark border">Saved word</span>
+              )}
             </div>
             {result.definitions && result.definitions.length > 0 ? (
               <ul className="list-group list-group-flush">
