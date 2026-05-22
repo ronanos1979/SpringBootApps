@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../../components/Layout';
 import { getBook, getBookWords, addWordToBook, bulkAddWordsToBook, removeWordFromBook } from '../../api/client';
+import { formatDefinitionLookupReason } from '../../utils/definitionLookup';
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -312,7 +313,10 @@ export default function BookDetail() {
                   ))}
                 </ul>
               ) : (
-                <div className="card-body text-muted">No definitions found.</div>
+                <div className="card-body text-muted">
+                  No definitions found.
+                  <div><small>{formatDefinitionLookupReason(bw.word)}</small></div>
+                </div>
               )}
             </div>
           ))

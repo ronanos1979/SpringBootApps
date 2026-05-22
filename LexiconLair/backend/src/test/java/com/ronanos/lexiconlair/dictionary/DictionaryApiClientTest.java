@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -69,6 +71,26 @@ class DictionaryApiClientTest {
 
         assertNotNull(actual);
         assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    void lookupEntriesCapturesHttpFailureDetails() {
+        String expectedUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/malady";
+
+        when(restTemplate.getForObject(expectedUrl, DictionaryWordDTO[].class))
+                .thenThrow(HttpClientErrorException.create(
+                        HttpStatus.TOO_MANY_REQUESTS,
+                        "Too Many Requests",
+                        org.springframework.http.HttpHeaders.EMPTY,
+                        "error code: 1015".getBytes(),
+                        null));
+
+        var actual = dictionaryApiClient.lookupEntries("malady", "en");
+
+        assertTrue(actual.entries().isEmpty());
+        assertEquals("FAILED", actual.status());
+        assertEquals(429, actual.httpStatus());
+        assertEquals("error code: 1015", actual.message());
     }
 
     @Test

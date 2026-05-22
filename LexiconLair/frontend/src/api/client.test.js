@@ -10,10 +10,12 @@ import {
   deleteUser,
   deleteWord,
   getAuthor,
+  getAdminSettings,
   getBook,
   getCurrentUser,
   getUser,
   getWord,
+  listWordsWithoutDefinitions,
   listAuthors,
   listBooks,
   listDefinitions,
@@ -21,10 +23,14 @@ import {
   listWords,
   login,
   logout,
+  refreshMissingWordDefinitions,
+  refreshWordDefinitions,
   saveBookToCollection,
   searchAuthors,
   searchBooks,
+  searchWords,
   updateAuthor,
+  updateAdminSettings,
   updateBook,
   updateUser,
   updateWord,
@@ -105,14 +111,16 @@ describe('api client', () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(await mockResponse({ id: 1 }));
 
     await getAuthor(1);
+    await getAdminSettings();
     await getBook(2);
     await getWord(3);
     await getUser(4);
 
     expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/authors/1', expect.objectContaining({ credentials: 'include' }));
-    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/books/2', expect.objectContaining({ credentials: 'include' }));
-    expect(fetchMock).toHaveBeenNthCalledWith(3, '/api/words/3', expect.objectContaining({ credentials: 'include' }));
-    expect(fetchMock).toHaveBeenNthCalledWith(4, '/api/users/4', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/admin/settings', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(3, '/api/books/2', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(4, '/api/words/3', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(5, '/api/users/4', expect.objectContaining({ credentials: 'include' }));
   });
 
   it('serializes create and update payloads as JSON', async () => {
@@ -122,6 +130,7 @@ describe('api client', () => {
     await createBook({ title: 'Kindred', authorId: 7 });
     await createWord({ text: 'lexicon', language: 'English' });
     await createUser({ username: 'reader', password: 'secret', email: 'reader@example.com' });
+    await updateAdminSettings({ externalApiDelayMs: 100, externalApiBatchSize: 5 });
     await updateAuthor(1, { firstName: 'Octavia', lastName: 'Butler' });
     await updateBook(1, { title: 'Parable', authorId: 7 });
     await updateWord(1, { text: 'parable', language: 'English' });
@@ -144,19 +153,23 @@ describe('api client', () => {
       method: 'POST',
       body: JSON.stringify({ username: 'reader', password: 'secret', email: 'reader@example.com' }),
     }));
-    expect(fetchMock).toHaveBeenNthCalledWith(5, '/api/authors/1', expect.objectContaining({
+    expect(fetchMock).toHaveBeenNthCalledWith(5, '/api/admin/settings', expect.objectContaining({
+      method: 'PUT',
+      body: JSON.stringify({ externalApiDelayMs: 100, externalApiBatchSize: 5 }),
+    }));
+    expect(fetchMock).toHaveBeenNthCalledWith(6, '/api/authors/1', expect.objectContaining({
       method: 'PUT',
       body: JSON.stringify({ firstName: 'Octavia', lastName: 'Butler' }),
     }));
-    expect(fetchMock).toHaveBeenNthCalledWith(6, '/api/books/1', expect.objectContaining({
+    expect(fetchMock).toHaveBeenNthCalledWith(7, '/api/books/1', expect.objectContaining({
       method: 'PUT',
       body: JSON.stringify({ title: 'Parable', authorId: 7 }),
     }));
-    expect(fetchMock).toHaveBeenNthCalledWith(7, '/api/words/1', expect.objectContaining({
+    expect(fetchMock).toHaveBeenNthCalledWith(8, '/api/words/1', expect.objectContaining({
       method: 'PUT',
       body: JSON.stringify({ text: 'parable', language: 'English' }),
     }));
-    expect(fetchMock).toHaveBeenNthCalledWith(8, '/api/users/1', expect.objectContaining({
+    expect(fetchMock).toHaveBeenNthCalledWith(9, '/api/users/1', expect.objectContaining({
       method: 'PUT',
       body: JSON.stringify({ username: 'reader', password: '', email: 'reader@example.com' }),
     }));
@@ -167,16 +180,24 @@ describe('api client', () => {
 
     await searchBooks('hamlet');
     await searchAuthors('shake');
+    await searchWords('stoic');
     await saveBookToCollection(5);
     await bulkAddWordsToBook(1, { words: ['ephemeral', 'serendipity'], language: 'en' });
+    await listWordsWithoutDefinitions();
+    await refreshWordDefinitions(8);
+    await refreshMissingWordDefinitions();
 
     expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/books/search?q=hamlet', expect.objectContaining({ credentials: 'include' }));
     expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/authors/search?q=shake', expect.objectContaining({ credentials: 'include' }));
-    expect(fetchMock).toHaveBeenNthCalledWith(3, '/api/books/5/save', expect.objectContaining({ method: 'POST' }));
-    expect(fetchMock).toHaveBeenNthCalledWith(4, '/api/books/1/words/bulk', expect.objectContaining({
+    expect(fetchMock).toHaveBeenNthCalledWith(3, '/api/words/search?q=stoic', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(4, '/api/books/5/save', expect.objectContaining({ method: 'POST' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(5, '/api/books/1/words/bulk', expect.objectContaining({
       method: 'POST',
       body: JSON.stringify({ words: ['ephemeral', 'serendipity'], language: 'en' }),
     }));
+    expect(fetchMock).toHaveBeenNthCalledWith(6, '/api/words/without-definitions', expect.objectContaining({ credentials: 'include' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(7, '/api/words/8/definitions/refresh', expect.objectContaining({ method: 'POST' }));
+    expect(fetchMock).toHaveBeenNthCalledWith(8, '/api/words/definitions/refresh-missing', expect.objectContaining({ method: 'POST' }));
   });
 
   it('throws backend error messages for failed responses', async () => {

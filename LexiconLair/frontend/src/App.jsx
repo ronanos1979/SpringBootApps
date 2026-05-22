@@ -14,6 +14,7 @@ import WordSearch from './pages/words/WordSearch';
 import ListUsers from './pages/users/ListUsers';
 import AddUser from './pages/users/AddUser';
 import ListDefinitions from './pages/definitions/ListDefinitions';
+import AdminSettings from './pages/admin/AdminSettings';
 
 // Client-side routes for the LexiconLair SPA.
 function App() {
@@ -50,6 +51,8 @@ function App() {
           <Route path="/users/update/:id" element={<RequireAuth><AddUser /></RequireAuth>} />
 
           <Route path="/definitions" element={<RequireAuth><ListDefinitions /></RequireAuth>} />
+
+          <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
 
           {/* Catch-all redirects unknown paths to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

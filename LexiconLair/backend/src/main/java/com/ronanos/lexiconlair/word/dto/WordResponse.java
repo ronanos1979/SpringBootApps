@@ -11,7 +11,11 @@ public record WordResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         Long createdBy,
-        Long updatedBy
+        Long updatedBy,
+        String definitionLookupStatus,
+        Integer definitionLookupHttpStatus,
+        String definitionLookupMessage,
+        LocalDateTime definitionLookupAt
 ) {
     public static WordResponse from(Word word) {
         return new WordResponse(
@@ -21,6 +25,10 @@ public record WordResponse(
                 word.getCreatedAt(),
                 word.getUpdatedAt(),
                 word.getCreatedBy(),
-                word.getUpdatedBy());
+                word.getUpdatedBy(),
+                word.getDefinitionLookupStatus(),
+                word.getDefinitionLookupHttpStatus(),
+                word.getDefinitionLookupMessage(),
+                word.getDefinitionLookupAt());
     }
 }

@@ -52,4 +52,21 @@ class WordDtoTest {
         assertNull(response.updatedAt());
         assertNull(response.updatedBy());
     }
+
+    @Test
+    void wordResponseMapsDefinitionLookupFields() {
+        Word word = new Word("malady", "en");
+        LocalDateTime now = LocalDateTime.of(2026, 5, 22, 11, 0);
+        word.setDefinitionLookupStatus("FAILED");
+        word.setDefinitionLookupHttpStatus(429);
+        word.setDefinitionLookupMessage("error code: 1015");
+        word.setDefinitionLookupAt(now);
+
+        WordResponse response = WordResponse.from(word);
+
+        assertEquals("FAILED", response.definitionLookupStatus());
+        assertEquals(429, response.definitionLookupHttpStatus());
+        assertEquals("error code: 1015", response.definitionLookupMessage());
+        assertEquals(now, response.definitionLookupAt());
+    }
 }

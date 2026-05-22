@@ -2,6 +2,7 @@ package com.ronanos.lexiconlair.word;
 
 import com.ronanos.lexiconlair.bookword.domain.BookWord;
 import com.ronanos.lexiconlair.bookword.persistence.BookWordRepository;
+import com.ronanos.lexiconlair.definition.domain.Definition;
 import com.ronanos.lexiconlair.definition.persistence.DefinitionRepository;
 import com.ronanos.lexiconlair.security.SpringSecurityConfiguration;
 import com.ronanos.lexiconlair.user.domain.User;
@@ -220,6 +221,58 @@ class WordControllerMockMvcTest {
                 .andExpect(jsonPath("$[0].bookId").doesNotExist())
                 .andExpect(jsonPath("$[0].word.text").value("stoic"))
                 .andExpect(jsonPath("$[0].word.language").value("en"));
+    }
+
+    @Test
+    void listWordsWithoutDefinitionsReturnsWordsMissingDefinitions() throws Exception {
+        Word rakish = new Word("rakish", "en");
+        ReflectionTestUtils.setField(rakish, "id", 14L);
+        when(wordRepository.findWithoutDefinitions()).thenReturn(List.of(rakish));
+
+        mockMvc.perform(get("/api/words/without-definitions").with(user("ronan").roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(14))
+                .andExpect(jsonPath("$[0].text").value("rakish"));
+    }
+
+    @Test
+    void refreshWordDefinitionsCallsDictionaryRefresh() throws Exception {
+        Word rakish = new Word("rakish", "en");
+        ReflectionTestUtils.setField(rakish, "id", 14L);
+        Definition definition = new Definition();
+        definition.setWord(rakish);
+        definition.setDefinitionText("Having a dashing appearance.");
+        definition.setPartOfSpeech("adjective");
+        definition.setSourceApi("dictionaryapi.dev");
+
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser()));
+        when(wordRepository.findById(14L)).thenReturn(Optional.of(rakish));
+        when(wordDefinitionService.refreshDefinitions(rakish, 1L)).thenReturn(List.of(definition));
+
+        mockMvc.perform(post("/api/words/14/definitions/refresh").with(user("ronan").roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.word.text").value("rakish"))
+                .andExpect(jsonPath("$.definitions[0].definitionText").value("Having a dashing appearance."));
+    }
+
+    @Test
+    void refreshMissingDefinitionsRefreshesAllDefinitionlessWords() throws Exception {
+        Word rakish = new Word("rakish", "en");
+        ReflectionTestUtils.setField(rakish, "id", 14L);
+        Definition definition = new Definition();
+        definition.setWord(rakish);
+        definition.setDefinitionText("Having a dashing appearance.");
+        definition.setPartOfSpeech("adjective");
+        definition.setSourceApi("dictionaryapi.dev");
+
+        when(userRepository.findByUsername("ronan")).thenReturn(Optional.of(currentUser()));
+        when(wordRepository.findWithoutDefinitions()).thenReturn(List.of(rakish));
+        when(wordDefinitionService.refreshDefinitions(rakish, 1L)).thenReturn(List.of(definition));
+
+        mockMvc.perform(post("/api/words/definitions/refresh-missing").with(user("ronan").roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].word.text").value("rakish"))
+                .andExpect(jsonPath("$[0].definitions[0].definitionText").value("Having a dashing appearance."));
     }
 
     @Test

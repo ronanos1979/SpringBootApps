@@ -24,6 +24,7 @@ export default function Navbar() {
           <li className="nav-item"><Link className="nav-link" to="/words">All Words</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/definitions">Definitions</Link></li>
           <li className="nav-item"><Link className="nav-link" to="/users">Users</Link></li>
+          <li className="nav-item"><Link className="nav-link" to="/admin/settings">Admin</Link></li>
         </ul>
       </div>
       <ul className="navbar-nav">

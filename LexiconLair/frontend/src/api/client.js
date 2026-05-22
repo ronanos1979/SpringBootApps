@@ -56,6 +56,14 @@ export function logout() {
   });
 }
 
+export function getAdminSettings() {
+  return request('/api/admin/settings');
+}
+
+export function updateAdminSettings(settings) {
+  return jsonRequest('/api/admin/settings', 'PUT', settings);
+}
+
 export function listAuthors() {
   return request('/api/authors');
 }
@@ -136,6 +144,18 @@ export function listWords() {
 
 export function searchWords(q) {
   return request(`/api/words/search?q=${encodeURIComponent(q)}`);
+}
+
+export function listWordsWithoutDefinitions() {
+  return request('/api/words/without-definitions');
+}
+
+export function refreshWordDefinitions(id) {
+  return request(`/api/words/${id}/definitions/refresh`, { method: 'POST' });
+}
+
+export function refreshMissingWordDefinitions() {
+  return request('/api/words/definitions/refresh-missing', { method: 'POST' });
 }
 
 export function getWord(id) {

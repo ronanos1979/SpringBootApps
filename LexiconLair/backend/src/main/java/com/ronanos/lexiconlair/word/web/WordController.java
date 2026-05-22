@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.ronanos.lexiconlair.bookword.dto.WordSearchResult;
 import com.ronanos.lexiconlair.bookword.domain.BookWord;
+import com.ronanos.lexiconlair.definition.domain.Definition;
 import com.ronanos.lexiconlair.bookword.persistence.BookWordRepository;
 import com.ronanos.lexiconlair.definition.persistence.DefinitionRepository;
 import com.ronanos.lexiconlair.user.domain.User;
@@ -81,7 +83,30 @@ public class WordController {
                 .map(word -> WordSearchResult.from(word, definitionRepository.findByWord_Id(word.getId())))
                 .toList();
 
-        return java.util.stream.Stream.concat(bookWordResults.stream(), savedWordResults.stream()).toList();
+        return Stream.concat(bookWordResults.stream(), savedWordResults.stream()).toList();
+    }
+
+    @GetMapping("/without-definitions")
+    public List<WordResponse> listWordsWithoutDefinitions() {
+        return wordRepository.findWithoutDefinitions().stream()
+                .map(WordResponse::from)
+                .toList();
+    }
+
+    @PostMapping("/{id}/definitions/refresh")
+    public WordSearchResult refreshWordDefinitions(@PathVariable Long id) {
+        Word word = wordRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Word not found"));
+        List<Definition> definitions = wordDefinitionService.refreshDefinitions(word, getCurrentUserId());
+        return WordSearchResult.from(word, definitions);
+    }
+
+    @PostMapping("/definitions/refresh-missing")
+    public List<WordSearchResult> refreshMissingDefinitions() {
+        Long currentUserId = getCurrentUserId();
+        return wordRepository.findWithoutDefinitions().stream()
+                .map(word -> WordSearchResult.from(word, wordDefinitionService.refreshDefinitions(word, currentUserId)))
+                .toList();
     }
 
     @GetMapping("/{id}")
