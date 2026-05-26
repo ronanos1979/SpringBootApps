@@ -1,14 +1,15 @@
 # LexiconLair Frontend
 
-React/Vite frontend for the LexiconLair SPA.
+React/Vite SPA for LexiconLair — a vocabulary management and quiz application.
 
 ## Stack
 
 - React 19
-- React Router
+- React Router v7
+- Bootstrap 5
 - Vite
-- Bootstrap
 - ESLint
+- Vitest + React Testing Library
 
 ## Run
 
@@ -25,6 +26,14 @@ The Vite dev server runs on `http://localhost:5173`.
 npm run build
 ```
 
+The production build outputs to `dist/`. The Spring Boot backend serves the built assets.
+
+## Test
+
+```powershell
+npm run test
+```
+
 ## Lint
 
 ```powershell
@@ -35,38 +44,45 @@ npm run lint
 
 The Spring Boot REST backend lives in `../backend` and runs on `http://localhost:8080`.
 
-The frontend should call backend APIs under `/api/**` with credentials enabled so the browser sends the session cookie:
+All API calls go through `src/api/client.js` with `credentials: 'include'` so the browser sends the session cookie:
 
 ```js
-fetch('/api/auth/me', {
-  credentials: 'include'
-})
+fetch('/api/auth/me', { credentials: 'include' })
 ```
 
 During local development, the backend CORS config allows `http://localhost:5173`.
 
-## Current State
+## Authentication
 
-The SPA routes and pages are scaffolded. Some pages still use `src/data/mockData.js` while API integration is completed.
+`AuthContext` (`src/auth/AuthContext.jsx`) holds the current user and exposes `login` / `logout` actions. It checks `GET /api/auth/me` on app load to restore session state.
 
-Primary routes:
+`RequireAuth` wraps protected routes and redirects unauthenticated users to `/login`.
+
+## Routes
 
 ```text
-/
-/login
-/authors
-/authors/add
-/authors/update/:id
-/books
-/books/add
-/books/update/:id
-/words
-/words/add
-/words/update/:id
-/users
-/users/add
-/users/update/:id
-/definitions
+/                         Welcome / landing page
+/login                    Login form
+
+/authors                  List all authors
+/authors/add              Add a new author
+
+/books                    List all books
+/books/add                Add a new book
+/books/:id                Book detail — words in this book, add/remove words
+
+/words                    List all words (ADMIN)
+/words/add                Add a word (ADMIN)
+/words/search             Search words across all books and standalone words (ADMIN)
+
+/definitions              List all definitions (ADMIN)
+
+/users                    User management (ADMIN)
+/users/add                Add a new user (ADMIN)
+
+/admin/settings           Admin settings — throttling and game configuration (ADMIN)
+
+/game                     Vocabulary quiz game
 ```
 
 ## API Shape
@@ -74,12 +90,68 @@ Primary routes:
 The backend exposes DTO-based JSON APIs:
 
 ```text
-/api/authors
-/api/books
-/api/words
-/api/definitions
-/api/users
-/api/auth/login
-/api/auth/me
-/api/auth/logout
+POST /api/auth/login
+GET  /api/auth/me
+POST /api/auth/logout
+
+GET  /api/authors
+GET  /api/authors/{id}
+POST /api/authors
+PUT  /api/authors/{id}
+DELETE /api/authors/{id}
+
+GET  /api/books
+GET  /api/books/{id}
+POST /api/books
+PUT  /api/books/{id}
+DELETE /api/books/{id}
+
+GET    /api/books/{bookId}/words
+POST   /api/books/{bookId}/words
+POST   /api/books/{bookId}/words/bulk
+DELETE /api/books/{bookId}/words/{bookWordId}
+
+GET  /api/words
+GET  /api/words/{id}
+GET  /api/words/search?q=<text>
+GET  /api/words/without-definitions
+POST /api/words
+POST /api/words/{id}/definitions/refresh
+POST /api/words/definitions/refresh-missing
+PUT  /api/words/{id}
+DELETE /api/words/{id}
+
+GET  /api/definitions
+GET  /api/definitions/{id}
+POST /api/definitions
+PUT  /api/definitions/{id}
+DELETE /api/definitions/{id}
+
+GET  /api/users
+GET  /api/users/{id}
+POST /api/users
+PUT  /api/users/{id}
+DELETE /api/users/{id}
+
+GET /api/game/question?mode=easy
+GET /api/game/question?mode=difficult
+
+GET /api/admin/settings
+PUT /api/admin/settings
 ```
+
+## Game
+
+The `/game` page calls `GET /api/game/question?mode=<easy|difficult>` to receive a multiple-choice vocabulary question. The response includes `correctDefinitionId` and an `options` array. The frontend evaluates the user's selection locally without a further API call.
+
+- **Easy mode**: question words come from words the current user has added to their books.
+- **Difficult mode**: question words come from all words in the system that have definitions.
+
+## Admin Settings
+
+The `/admin/settings` page allows admins to configure:
+
+- `externalApiDelayMs` — throttle delay between batches of external dictionary API calls.
+- `externalApiBatchSize` — number of calls per batch before the delay fires.
+- `gameOptionCount` — number of multiple-choice options per question.
+- `gameQuestionCount` — number of questions per game session.

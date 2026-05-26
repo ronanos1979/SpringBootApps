@@ -12,12 +12,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,8 +49,7 @@ class GameServiceTest {
         when(definitionRepository.findByWord_IdNot(1L)).thenReturn(List.of(decoy));
         when(adminSettingsService.getSettings()).thenReturn(new AdminSettings(1L, 50, 10, 2));
 
-        var question = new GameService(bookWordRepository, definitionRepository, wordRepository, adminSettingsService)
-                .nextQuestion("easy", 7L);
+        var question = gameService().nextQuestion("easy", 7L);
 
         assertEquals("stoic", question.wordText());
         assertEquals(10L, question.correctDefinitionId());
@@ -65,11 +67,110 @@ class GameServiceTest {
         when(definitionRepository.findByWord_IdNot(1L)).thenReturn(List.of());
         when(adminSettingsService.getSettings()).thenReturn(new AdminSettings(1L, 50, 10, 4));
 
-        var question = new GameService(bookWordRepository, definitionRepository, wordRepository, adminSettingsService)
-                .nextQuestion("difficult", 7L);
+        var question = gameService().nextQuestion("difficult", 7L);
 
         assertEquals("difficult", question.mode());
         assertEquals("stoic", question.wordText());
+    }
+
+    @Test
+    void nullModeDefaultsToEasyMode() {
+        Word target = word(1L, "stoic");
+        Definition correct = definition(10L, target, "Enduring pain without complaint.");
+
+        when(bookWordRepository.findDistinctWordsByCreatedBy(7L)).thenReturn(List.of(target));
+        when(definitionRepository.findByWord_Id(1L)).thenReturn(List.of(correct));
+        when(definitionRepository.findByWord_IdNot(1L)).thenReturn(List.of());
+        when(adminSettingsService.getSettings()).thenReturn(new AdminSettings(1L, 50, 10, 2));
+
+        var question = gameService().nextQuestion(null, 7L);
+
+        assertEquals("easy", question.mode());
+    }
+
+    @Test
+    void modeIsCaseInsensitive() {
+        Word target = word(1L, "stoic");
+        Definition correct = definition(10L, target, "Enduring pain without complaint.");
+
+        when(bookWordRepository.findDistinctWordsByCreatedBy(7L)).thenReturn(List.of(target));
+        when(definitionRepository.findByWord_Id(1L)).thenReturn(List.of(correct));
+        when(definitionRepository.findByWord_IdNot(1L)).thenReturn(List.of());
+        when(adminSettingsService.getSettings()).thenReturn(new AdminSettings(1L, 50, 10, 2));
+
+        var question = gameService().nextQuestion("EASY", 7L);
+
+        assertEquals("easy", question.mode());
+    }
+
+    @Test
+    void throwsNotFoundWhenNoPlayableWordsExist() {
+        when(bookWordRepository.findDistinctWordsByCreatedBy(7L)).thenReturn(List.of());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> gameService().nextQuestion("easy", 7L));
+
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+    }
+
+    @Test
+    void throwsNotFoundWhenCandidateWordsHaveNoDefinitions() {
+        Word wordWithoutDefs = word(1L, "stoic");
+
+        when(bookWordRepository.findDistinctWordsByCreatedBy(7L)).thenReturn(List.of(wordWithoutDefs));
+        when(definitionRepository.findByWord_Id(1L)).thenReturn(List.of());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> gameService().nextQuestion("easy", 7L));
+
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+    }
+
+    @Test
+    void throwsBadRequestForUnsupportedMode() {
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> gameService().nextQuestion("expert", 7L));
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+    }
+
+    @Test
+    void questionOptionCountRespectsMinimuOfTwo() {
+        Word target = word(1L, "stoic");
+        Definition correct = definition(10L, target, "Enduring pain without complaint.");
+
+        when(bookWordRepository.findDistinctWordsByCreatedBy(7L)).thenReturn(List.of(target));
+        when(definitionRepository.findByWord_Id(1L)).thenReturn(List.of(correct));
+        when(definitionRepository.findByWord_IdNot(1L)).thenReturn(List.of());
+        when(adminSettingsService.getSettings()).thenReturn(new AdminSettings(1L, 50, 10, 1));
+
+        var question = gameService().nextQuestion("easy", 7L);
+
+        assertEquals(1, question.options().size());
+    }
+
+    @Test
+    void correctDefinitionIdIsAlwaysIncludedInOptions() {
+        Word target = word(1L, "stoic");
+        Definition correct = definition(10L, target, "Enduring pain without complaint.");
+        Definition decoy1 = definition(20L, word(2L, "rakish"), "Having a dashing appearance.");
+        Definition decoy2 = definition(30L, word(3L, "ephemeral"), "Lasting a very short time.");
+
+        when(bookWordRepository.findDistinctWordsByCreatedBy(7L)).thenReturn(List.of(target));
+        when(definitionRepository.findByWord_Id(1L)).thenReturn(List.of(correct));
+        when(definitionRepository.findByWord_IdNot(1L)).thenReturn(List.of(decoy1, decoy2));
+        when(adminSettingsService.getSettings()).thenReturn(new AdminSettings(1L, 50, 10, 3));
+
+        var question = gameService().nextQuestion("easy", 7L);
+
+        boolean correctPresent = question.options().stream()
+                .anyMatch(opt -> opt.definitionId().equals(question.correctDefinitionId()));
+        assertEquals(true, correctPresent);
+        assertEquals(10L, question.correctDefinitionId());
+    }
+
+    private GameService gameService() {
+        return new GameService(bookWordRepository, definitionRepository, wordRepository, adminSettingsService);
     }
 
     private static Word word(Long id, String text) {
